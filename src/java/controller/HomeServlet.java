@@ -55,6 +55,8 @@ public class HomeServlet extends HttpServlet {
                     + URLEncoder.encode(match, StandardCharsets.UTF_8).replace("+", "%20"));
         }
         request.setAttribute("lstCategory", categories);
+        service.CartSupport.token(request.getSession());
+        request.setAttribute("cartCount", service.CartSupport.cart(request.getSession()).getCount());
         request.setAttribute("lstProduct", products);
         request.setAttribute("categoryNames", categoryNames);
         request.setAttribute("categoryCounts", categoryCounts);
@@ -70,6 +72,10 @@ public class HomeServlet extends HttpServlet {
         request.setAttribute("dateLabel", start.format(format) + " – " + end.format(format));
         User user = (User) request.getSession().getAttribute("user");
         if (user != null) request.setAttribute("myRentals", Database.getRentalDao().findByUserId(user.getId()));
+        if (user != null) {
+            try { request.setAttribute("paymentOrderIds", new data.dao.CheckoutDao().paymentIds(user.getId())); }
+            catch (java.sql.SQLException ex) { log("Unable to load payment links", ex); }
+        }
         request.setAttribute("title", "LensCam | Thuê máy ảnh & thiết bị chuyên nghiệp");
         request.getRequestDispatcher("/views/home.jsp").forward(request, response);
     }

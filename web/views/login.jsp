@@ -9,13 +9,13 @@
     <meta name="theme-color" content="#f8f9ff">
     <title>Đăng nhập LensCam</title>
     <link rel="stylesheet" href="${ctx}/assets/css/auth.css?v=1">
-    <script src="${ctx}/assets/js/auth.js" defer></script>
+    <script src="${ctx}/assets/js/auth.js?v=20261118-login" defer></script>
 </head>
 <body class="auth-page">
-<%@include file="/inc/icons.jspf"%>
+<%@include file="/inc/icons.jsp"%>
 <main class="auth-shell">
     <div class="auth-node"><span></span>CINE RENTAL AUTH NODE</div>
-    <%@include file="/inc/login-form.jspf"%>
+    <%@include file="/inc/login-form.jsp"%>
     <p class="auth-footnote">Đăng nhập để quản lý lịch thuê và thiết bị của bạn tại LensCam.</p>
     <button class="auth-support" type="button" data-auth-dialog="help-dialog" aria-label="Hỗ trợ đăng nhập"><svg><use href="#i-headset"/></svg></button>
 </main>

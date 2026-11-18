@@ -22,7 +22,7 @@ public class RentalItemImpl implements RentalItemDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, rentalId);
             try (ResultSet rs = sttm.executeQuery()) {
                 while (rs.next()) {
@@ -41,7 +41,7 @@ public class RentalItemImpl implements RentalItemDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, item.getRentalId());
             sttm.setInt(2, item.getDeviceId());
             sttm.setDouble(3, item.getPricePerDay());
@@ -56,33 +56,30 @@ public class RentalItemImpl implements RentalItemDao {
     public boolean insertBatch(List<RentalItem> items) {
         if (items == null || items.isEmpty()) return true;
         String sql = "INSERT INTO rental_items(rental_id, device_id, price_per_day) VALUES(?,?,?)";
-        Connection con = getConnection();
-        if (con == null) return false;
-
-        try {
+        try (Connection con = getConnection()) {
+            if (con == null) return false;
             con.setAutoCommit(false);
-            try (PreparedStatement sttm = con.prepareStatement(sql)) {
-                for (RentalItem item : items) {
-                    sttm.setInt(1, item.getRentalId());
-                    sttm.setInt(2, item.getDeviceId());
-                    sttm.setDouble(3, item.getPricePerDay());
-                    sttm.addBatch();
-                }
-                sttm.executeBatch();
-            }
-            con.commit();
-            con.setAutoCommit(true);
-            return true;
-        } catch (SQLException ex) {
             try {
-                con.rollback();
-                con.setAutoCommit(true);
-            } catch (SQLException e) {
-                // ignore
+                try (PreparedStatement statement = con.prepareStatement(sql)) {
+                    for (RentalItem item : items) {
+                        statement.setInt(1, item.getRentalId());
+                        statement.setInt(2, item.getDeviceId());
+                        statement.setDouble(3, item.getPricePerDay());
+                        statement.addBatch();
+                    }
+                    statement.executeBatch();
+                }
+                con.commit();
+                return true;
+            } catch (SQLException ex) {
+                try { con.rollback(); } catch (SQLException rollback) { ex.addSuppressed(rollback); }
+                System.getLogger(RentalItemImpl.class.getName()).log(System.Logger.Level.ERROR, "Cannot save rental items", ex);
+                return false;
             }
-            System.getLogger(RentalItemImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        } catch (SQLException ex) {
+            System.getLogger(RentalItemImpl.class.getName()).log(System.Logger.Level.ERROR, "Cannot close rental connection", ex);
+            return false;
         }
-        return false;
     }
 
     private RentalItem mapRentalItem(ResultSet rs) throws SQLException {

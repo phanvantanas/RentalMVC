@@ -16,7 +16,8 @@
     });
     try {
         const saved = localStorage.getItem(storageKey);
-        if (saved) { identifier.value = saved; remember.checked = true; hint.hidden = false; }
+        if (saved && !identifier.value) identifier.value = saved;
+        if (saved && identifier.value === saved) { remember.checked = true; hint.hidden = false; }
     } catch (_) { /* Login remains available when browser storage is blocked. */ }
     remember.addEventListener('change', () => {
         hint.hidden = !remember.checked;

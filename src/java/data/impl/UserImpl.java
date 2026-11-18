@@ -1,6 +1,7 @@
 package data.impl;
 
 import data.dao.UserDao;
+import data.dao.DataAccessException;
 import data.driver.MySQLDriver;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,17 +19,19 @@ public class UserImpl implements UserDao {
 
     @Override
     public User findUser(String emailphone, String password) {
+        if (emailphone == null || password == null || emailphone.isBlank() || password.isEmpty()) return null;
+        emailphone = normalizeIdentifier(emailphone);
         String sql;
         if (emailphone != null && emailphone.contains("@")) {
-            sql = "SELECT * FROM users WHERE email=? AND password=?";
+            sql = "SELECT * FROM users WHERE email=? AND BINARY password=BINARY ?";
         } else {
-            sql = "SELECT * FROM users WHERE phone=? AND password=?";
+            sql = "SELECT * FROM users WHERE phone=? AND BINARY password=BINARY ?";
         }
 
         Connection con = getConnection();
-        if (con == null) return null;
+        if (con == null) throw new DataAccessException("Authentication database is unavailable");
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, emailphone);
             sttm.setString(2, password);
             try (ResultSet rs = sttm.executeQuery()) {
@@ -37,9 +40,15 @@ public class UserImpl implements UserDao {
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(UserImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            throw new DataAccessException("Unable to query authentication database", ex);
         }
         return null;
+    }
+
+    public static String normalizeIdentifier(String value) {
+        String identifier = value == null ? "" : value.strip();
+        if (identifier.contains("@")) return identifier.toLowerCase(java.util.Locale.ROOT);
+        return identifier.replaceAll("[\\s().-]", "");
     }
 
     @Override
@@ -48,7 +57,7 @@ public class UserImpl implements UserDao {
         Connection con = getConnection();
         if (con == null) return null;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             try (ResultSet rs = sttm.executeQuery()) {
                 if (rs.next()) {
@@ -66,7 +75,7 @@ public class UserImpl implements UserDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, value);
             try (ResultSet rs = sttm.executeQuery()) {
                 return rs.next();
@@ -93,12 +102,12 @@ public class UserImpl implements UserDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, user.getName());
             sttm.setString(2, user.getEmail());
             sttm.setString(3, user.getPhone());
             sttm.setString(4, user.getPassword());
-            sttm.setString(5, user.getRole() != null ? user.getRole() : "customer");
+            sttm.setString(5, user.getRole() != null ? user.getRole() : "user");
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {
             System.getLogger(UserImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
@@ -113,7 +122,7 @@ public class UserImpl implements UserDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql);
+        try (con; PreparedStatement sttm = con.prepareStatement(sql);
              ResultSet rs = sttm.executeQuery()) {
             while (rs.next()) {
                 list.add(mapUser(rs));

@@ -1,0 +1,6 @@
+<%@page pageEncoding="UTF-8"%>
+<aside class="operations-side">
+    <section class="side-panel"><div class="side-panel-heading"><h2><span class="status-dot"></span>Chi tiết đơn thuê</h2><span class="side-chip">LIVE DATA</span></div><div id="selected-order" aria-live="polite"><p class="muted">Chọn một đơn trong danh sách để xem chi tiết.</p></div></section>
+    <section class="side-panel alerts-panel"><div class="side-panel-heading"><h2><span class="alert-star">✱</span>Cảnh báo vận hành</h2><span class="alert-count">${empty counts['overdue'] ? 0 : counts['overdue']} quá hạn</span></div><c:forEach items="${rentals}" var="r"><c:if test="${r.overdue}"><button class="alert-row" type="button" data-detail="${r.id}"><span><strong>#ORD-${r.id} · Quá hạn trả</strong><small><c:out value="${r.customerName}"/> · <fmt:formatDate value="${r.endDate}" pattern="dd/MM"/></small></span><svg><use href="#i-arrow"/></svg></button></c:if></c:forEach><c:if test="${empty counts['overdue']}"><p class="no-alerts"><svg><use href="#i-check"/></svg>Chưa có đơn quá hạn trả máy.</p></c:if></section>
+    <section class="side-panel hub-panel" id="hub-locations"><h2>Điểm nhận &amp; trả thiết bị</h2><div><strong>Hub Huế</strong><p>77 Nguyễn Huệ, Huế</p></div><div><strong>Hub Đà Nẵng</strong><p>252 Nguyễn Tất Thành, Đà Nẵng</p></div></section>
+</aside>

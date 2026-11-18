@@ -1,0 +1,36 @@
+package data.dao;
+import data.driver.MySQLDriver;import model.RentalCart;import service.MerchantBank;import java.sql.*;import java.math.*;import java.util.*;import java.net.URLEncoder;import java.nio.charset.StandardCharsets;
+public class CheckoutDao {
+ protected Connection connection()throws SQLException{Connection con=MySQLDriver.getConnection();if(con==null)throw new SQLException("Checkout database unavailable");return con;}
+ public int place(int userId,RentalCart cart,MerchantBank bank)throws SQLException{return place(userId,cart,bank,null);}
+ public int place(int userId,RentalCart cart,MerchantBank bank,BigDecimal quoted)throws SQLException{
+  if(userId<=0||cart==null||cart.getCount()==0||!bank.configured())throw new IllegalArgumentException("Thông tin thanh toán chưa đầy đủ.");RentalCart.validateDates(cart.getStart(),cart.getEnd());RentalCart.validateTime(cart.getPickupTime());RentalCart.validateTime(cart.getReturnTime());
+  Map<Integer,Integer> quantities=cart.getQuantities();List<Integer> ids=quantities.keySet().stream().sorted().toList();String slots=String.join(",",Collections.nCopies(ids.size(),"?"));
+  try(Connection con=connection()){
+   con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);con.setAutoCommit(false);
+   try{
+    try(PreparedStatement st=con.prepareStatement("SELECT id FROM devices WHERE product_id IN ("+slots+") ORDER BY id FOR UPDATE")){bind(st,ids);try(ResultSet rs=st.executeQuery()){while(rs.next()){} }}
+    Map<Integer,BigDecimal> prices=new HashMap<>();try(PreparedStatement st=con.prepareStatement("SELECT id,price,status FROM products WHERE id IN ("+slots+") ORDER BY id FOR UPDATE")){bind(st,ids);try(ResultSet rs=st.executeQuery()){while(rs.next()){if(!"active".equals(rs.getString("status")))throw new IllegalArgumentException("Một thiết bị đã ngừng cho thuê.");prices.put(rs.getInt("id"),rs.getBigDecimal("price"));}}}
+    if(prices.size()!=ids.size())throw new IllegalArgumentException("Một thiết bị không còn tồn tại.");
+    Map<Integer,List<Integer>> assigned=new LinkedHashMap<>();BigDecimal subtotal=BigDecimal.ZERO;
+    String free="SELECT d.id FROM devices d WHERE d.product_id=? AND d.status='available' AND NOT EXISTS (SELECT 1 FROM rental_items ri JOIN rentals r ON r.id=ri.rental_id WHERE ri.device_id=d.id AND r.status IN ('pending','confirmed','renting') AND r.start_date<=? AND r.end_date>=?) ORDER BY d.id LIMIT ?";
+    for(int id:ids){List<Integer> serials=new ArrayList<>();try(PreparedStatement st=con.prepareStatement(free)){st.setInt(1,id);st.setDate(2,java.sql.Date.valueOf(cart.getEnd()));st.setDate(3,java.sql.Date.valueOf(cart.getStart()));st.setInt(4,quantities.get(id));try(ResultSet rs=st.executeQuery()){while(rs.next())serials.add(rs.getInt(1));}}if(serials.size()!=quantities.get(id))throw new IllegalArgumentException("Thiết bị vừa hết lịch trống. Vui lòng kiểm tra lại giỏ hàng.");assigned.put(id,serials);subtotal=subtotal.add(prices.get(id).multiply(BigDecimal.valueOf(quantities.get(id))).multiply(BigDecimal.valueOf(cart.getDays())));}
+    BigDecimal saving=subtotal.multiply(BigDecimal.valueOf(cart.getDiscount())).divide(BigDecimal.valueOf(100),0,RoundingMode.HALF_UP);BigDecimal amount=subtotal.subtract(saving).setScale(0,RoundingMode.HALF_UP);if(amount.signum()<=0||amount.compareTo(new BigDecimal("9999999999"))>0)throw new IllegalArgumentException("Tổng tiền thuê không hợp lệ.");
+    if(quoted!=null&&quoted.compareTo(amount)!=0)throw new IllegalArgumentException("Giá thuê vừa được cập nhật. Vui lòng kiểm tra tổng tiền mới trước khi tạo đơn.");
+    int rentalId;try(PreparedStatement st=con.prepareStatement("INSERT INTO rentals(user_id,start_date,end_date,status,total,late_fee) VALUES(?,?,?,'pending',?,0)",Statement.RETURN_GENERATED_KEYS)){st.setInt(1,userId);st.setDate(2,java.sql.Date.valueOf(cart.getStart()));st.setDate(3,java.sql.Date.valueOf(cart.getEnd()));st.setBigDecimal(4,amount);st.executeUpdate();try(ResultSet rs=st.getGeneratedKeys()){if(!rs.next())throw new SQLException("Missing rental ID");rentalId=rs.getInt(1);}}
+    try(PreparedStatement st=con.prepareStatement("INSERT INTO rental_items(rental_id,device_id,price_per_day) VALUES(?,?,?)")){for(var entry:assigned.entrySet())for(int device:entry.getValue()){st.setInt(1,rentalId);st.setInt(2,device);st.setBigDecimal(3,prices.get(entry.getKey()));st.addBatch();}st.executeBatch();}
+    try(PreparedStatement st=con.prepareStatement("INSERT INTO rental_payments(rental_id,amount,transfer_reference,bank_code,account_number,account_holder,pickup_time,return_time) VALUES(?,?,?,?,?,?,?,?)")){st.setInt(1,rentalId);st.setBigDecimal(2,amount);st.setString(3,"LENSCAM"+rentalId);st.setString(4,bank.code());st.setString(5,bank.account());st.setString(6,bank.holder());st.setTime(7,Time.valueOf(cart.getPickupTime()+":00"));st.setTime(8,Time.valueOf(cart.getReturnTime()+":00"));st.executeUpdate();}
+    con.commit();return rentalId;
+   }catch(SQLException|RuntimeException ex){con.rollback();throw ex;}
+  }
+ }
+ private static void bind(PreparedStatement st,List<Integer> ids)throws SQLException{int i=1;for(int id:ids)st.setInt(i++,id);}
+ public Map<String,Object> payment(int rentalId,int userId)throws SQLException{
+  try(Connection con=connection();PreparedStatement st=con.prepareStatement("SELECT p.*,EXISTS(SELECT 1 FROM rental_receipts b WHERE b.rental_id=p.rental_id) AS has_receipt,r.status AS rental_status,r.start_date,r.end_date FROM rental_payments p JOIN rentals r ON r.id=p.rental_id WHERE p.rental_id=? AND r.user_id=?")){
+   st.setInt(1,rentalId);st.setInt(2,userId);try(ResultSet rs=st.executeQuery()){if(!rs.next())return null;Map<String,Object> p=new HashMap<>();for(String col:List.of("rental_id","amount","transfer_reference","bank_code","account_number","account_holder","status","rental_status","start_date","end_date","pickup_time","return_time"))p.put(col,rs.getObject(col));p.put("hasReceipt",rs.getBoolean("has_receipt"));p.put("qrPayload",service.VietQr.payload(rs.getString("bank_code"),rs.getString("account_number"),rs.getBigDecimal("amount"),rs.getString("transfer_reference")));return p;}
+  }
+ }
+ public void report(int id,int userId)throws SQLException{try(Connection con=connection();PreparedStatement st=con.prepareStatement("UPDATE rental_payments p JOIN rentals r ON r.id=p.rental_id SET p.status='reported' WHERE p.rental_id=? AND r.user_id=? AND p.status='pending' AND r.status<>'cancelled'")){st.setInt(1,id);st.setInt(2,userId);st.executeUpdate();}}
+ public boolean confirmPaid(int id)throws SQLException{try(Connection con=connection();PreparedStatement st=con.prepareStatement("UPDATE rental_payments p JOIN rentals r ON r.id=p.rental_id SET p.status='paid' WHERE p.rental_id=? AND p.status IN ('pending','reported') AND r.status<>'cancelled'")){st.setInt(1,id);return st.executeUpdate()==1;}}
+ public Set<Integer> paymentIds(int userId)throws SQLException{Set<Integer> ids=new HashSet<>();try(Connection con=connection();PreparedStatement st=con.prepareStatement("SELECT p.rental_id FROM rental_payments p JOIN rentals r ON r.id=p.rental_id WHERE r.user_id=?")){st.setInt(1,userId);try(ResultSet rs=st.executeQuery()){while(rs.next())ids.add(rs.getInt(1));}}return ids;}
+}

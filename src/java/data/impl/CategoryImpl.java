@@ -22,7 +22,7 @@ public class CategoryImpl implements CategoryDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql);
+        try (con; PreparedStatement sttm = con.prepareStatement(sql);
              ResultSet rs = sttm.executeQuery()) {
             while (rs.next()) {
                 list.add(new Category(rs.getInt("id"), rs.getString("name")));
@@ -39,7 +39,7 @@ public class CategoryImpl implements CategoryDao {
         Connection con = getConnection();
         if (con == null) return null;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             try (ResultSet rs = sttm.executeQuery()) {
                 if (rs.next()) {
@@ -58,7 +58,7 @@ public class CategoryImpl implements CategoryDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, name);
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {
@@ -73,7 +73,7 @@ public class CategoryImpl implements CategoryDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, newName);
             sttm.setInt(2, id);
             return sttm.executeUpdate() > 0;
@@ -89,7 +89,7 @@ public class CategoryImpl implements CategoryDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {

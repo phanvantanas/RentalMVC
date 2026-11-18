@@ -25,7 +25,7 @@ public class RentalImpl implements RentalDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql);
+        try (con; PreparedStatement sttm = con.prepareStatement(sql);
              ResultSet rs = sttm.executeQuery()) {
             while (rs.next()) {
                 list.add(mapRental(rs));
@@ -43,7 +43,7 @@ public class RentalImpl implements RentalDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, userId);
             try (ResultSet rs = sttm.executeQuery()) {
                 while (rs.next()) {
@@ -62,7 +62,7 @@ public class RentalImpl implements RentalDao {
         Connection con = getConnection();
         if (con == null) return null;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             try (ResultSet rs = sttm.executeQuery()) {
                 if (rs.next()) {
@@ -81,7 +81,7 @@ public class RentalImpl implements RentalDao {
         Connection con = getConnection();
         if (con == null) return -1;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             sttm.setInt(1, rental.getUserId());
             sttm.setDate(2, rental.getStartDate());
             sttm.setDate(3, rental.getEndDate());
@@ -109,7 +109,7 @@ public class RentalImpl implements RentalDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, status);
             sttm.setInt(2, id);
             return sttm.executeUpdate() > 0;
@@ -125,7 +125,7 @@ public class RentalImpl implements RentalDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setDate(1, rental.getStartDate());
             sttm.setDate(2, rental.getEndDate());
             sttm.setString(3, rental.getStatus());

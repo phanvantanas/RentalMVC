@@ -129,6 +129,7 @@
     document.querySelectorAll('.rent-button:not(:disabled)').forEach(button => button.addEventListener('click', () => {
         const card = button.closest('.product-card');
         document.querySelector('#rental-name').textContent = card.dataset.name;
+        document.querySelector('#quote-product-id').value = card.dataset.id;
         document.querySelector('#quote-price').textContent = currency(Number(card.dataset.price));
         const subtotal = Number(card.dataset.price) * selectedDays;
         document.querySelector('#quote-subtotal').textContent = currency(subtotal);

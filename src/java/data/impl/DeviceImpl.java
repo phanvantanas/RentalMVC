@@ -48,7 +48,7 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql);
+        try (con; PreparedStatement sttm = con.prepareStatement(sql);
              ResultSet rs = sttm.executeQuery()) {
             while (rs.next()) {
                 list.add(mapDevice(rs));
@@ -66,7 +66,7 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, productId);
             try (ResultSet rs = sttm.executeQuery()) {
                 while (rs.next()) {
@@ -86,7 +86,7 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, productId);
             try (ResultSet rs = sttm.executeQuery()) {
                 while (rs.next()) {
@@ -105,7 +105,7 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return null;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             try (ResultSet rs = sttm.executeQuery()) {
                 if (rs.next()) {
@@ -124,7 +124,7 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return null;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, serial);
             try (ResultSet rs = sttm.executeQuery()) {
                 if (rs.next()) {
@@ -143,7 +143,7 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, device.getProductId());
             sttm.setString(2, device.getSerial());
             sttm.setString(3, device.getStatus() != null ? device.getStatus() : "available");
@@ -160,7 +160,7 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, status);
             sttm.setInt(2, id);
             return sttm.executeUpdate() > 0;
@@ -176,7 +176,7 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {

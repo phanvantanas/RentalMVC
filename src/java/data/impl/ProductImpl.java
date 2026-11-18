@@ -22,7 +22,7 @@ public class ProductImpl implements ProductDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql);
+        try (con; PreparedStatement sttm = con.prepareStatement(sql);
              ResultSet rs = sttm.executeQuery()) {
             while (rs.next()) {
                 list.add(mapProduct(rs));
@@ -40,7 +40,7 @@ public class ProductImpl implements ProductDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id_category);
             try (ResultSet rs = sttm.executeQuery()) {
                 while (rs.next()) {
@@ -59,7 +59,7 @@ public class ProductImpl implements ProductDao {
         Connection con = getConnection();
         if (con == null) return null;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             try (ResultSet rs = sttm.executeQuery()) {
                 if (rs.next()) {
@@ -78,7 +78,7 @@ public class ProductImpl implements ProductDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, product.getId_category());
             sttm.setString(2, product.getName());
             sttm.setString(3, product.getImage());
@@ -99,7 +99,7 @@ public class ProductImpl implements ProductDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, product.getId_category());
             sttm.setString(2, product.getName());
             sttm.setString(3, product.getImage());
@@ -121,7 +121,7 @@ public class ProductImpl implements ProductDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {

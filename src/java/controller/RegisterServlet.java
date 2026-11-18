@@ -1,6 +1,7 @@
 package controller;
 
 import data.dao.Database;
+import data.dao.DataAccessException;
 import data.dao.UserDao;
 import data.utils.API;
 import jakarta.servlet.ServletException;
@@ -26,7 +27,7 @@ public class RegisterServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String name = trim(request.getParameter("name"));
-        String email = trim(request.getParameter("email")).toLowerCase();
+        String email = trim(request.getParameter("email")).toLowerCase(java.util.Locale.ROOT);
         String phone = trim(request.getParameter("phone"));
         String password = request.getParameter("password");
         String confirm = request.getParameter("confirm");
@@ -41,10 +42,14 @@ public class RegisterServlet extends HttpServlet {
                 error = "Email này đã được sử dụng!";
             } else if (dao.existsPhone(phone)) {
                 error = "Số điện thoại này đã được sử dụng!";
-            } else if (!dao.insert(new User(0, name, email, phone, password, "customer"))) {
+            } else if (!dao.insert(new User(0, name, email, phone, password, "user"))) {
                 error = "Đăng ký thất bại, vui lòng thử lại sau!";
             } else {
-                newUser = dao.findUser(email, password);
+                try {
+                    newUser = dao.findUser(email, password);
+                } catch (DataAccessException ex) {
+                    log("Account created but automatic sign-in is temporarily unavailable", ex);
+                }
             }
         }
 
