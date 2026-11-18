@@ -53,7 +53,7 @@ public class LoginServlet extends HttpServlet {
             request.getSession().setAttribute("username", API.getName(user.getName()));
 
             Object afterLogin = request.getSession().getAttribute("afterLogin");
-            if (afterLogin instanceof String && ((String) afterLogin).matches("/checkout(?:\\?order=[0-9]+)?")) {
+            if (afterLogin instanceof String && ((String) afterLogin).matches("/(?:checkout|my-rentals)(?:\\?order=[0-9]+)?")) {
                 request.getSession().removeAttribute("afterLogin");
                 response.sendRedirect(request.getContextPath() + afterLogin);
                 return;

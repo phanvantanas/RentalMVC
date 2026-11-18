@@ -25,6 +25,11 @@ public class CheckoutDao {
   }
  }
  private static void bind(PreparedStatement st,List<Integer> ids)throws SQLException{int i=1;for(int id:ids)st.setInt(i++,id);}
+ public String cartPaymentState(int rentalId,int userId)throws SQLException{
+  try(Connection con=connection();PreparedStatement st=con.prepareStatement("SELECT r.status AS rental_status,p.status FROM rental_payments p JOIN rentals r ON r.id=p.rental_id WHERE p.rental_id=? AND r.user_id=?")){
+   st.setInt(1,rentalId);st.setInt(2,userId);try(ResultSet rs=st.executeQuery()){return !rs.next()?"missing":("cancelled".equals(rs.getString("rental_status"))?"cancelled":rs.getString("status"));}
+  }
+ }
  public Map<String,Object> payment(int rentalId,int userId)throws SQLException{
   try(Connection con=connection();PreparedStatement st=con.prepareStatement("SELECT p.*,EXISTS(SELECT 1 FROM rental_receipts b WHERE b.rental_id=p.rental_id) AS has_receipt,r.status AS rental_status,r.start_date,r.end_date FROM rental_payments p JOIN rentals r ON r.id=p.rental_id WHERE p.rental_id=? AND r.user_id=?")){
    st.setInt(1,rentalId);st.setInt(2,userId);try(ResultSet rs=st.executeQuery()){if(!rs.next())return null;Map<String,Object> p=new HashMap<>();for(String col:List.of("rental_id","amount","transfer_reference","bank_code","account_number","account_holder","status","rental_status","start_date","end_date","pickup_time","return_time"))p.put(col,rs.getObject(col));p.put("hasReceipt",rs.getBoolean("has_receipt"));p.put("qrPayload",service.VietQr.payload(rs.getString("bank_code"),rs.getString("account_number"),rs.getBigDecimal("amount"),rs.getString("transfer_reference")));return p;}

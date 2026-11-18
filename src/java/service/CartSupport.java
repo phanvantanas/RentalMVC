@@ -7,7 +7,8 @@ public class CartSupport {
  public static boolean validToken(HttpServletRequest request){Object token=request.getSession().getAttribute("shopCsrf");String supplied=request.getParameter("csrf");return token instanceof String&&supplied!=null&&MessageDigest.isEqual(((String)token).getBytes(StandardCharsets.UTF_8),supplied.getBytes(StandardCharsets.UTF_8));}
  public static void prepare(HttpServletRequest request){
   RentalCart cart=cart(request.getSession());token(request.getSession());List<CartLine> lines=new ArrayList<>();Map<Integer,Product> products=new HashMap<>();Database.getProductDao().findAll().forEach(p->products.put(p.getId(),p));
-  Map<Integer,Integer> stock=cart.getStart()==null?Map.of():Database.getDeviceDao().countAvailable(cart.getStart(),cart.getEnd());BigDecimal subtotal=BigDecimal.ZERO;boolean available=cart.getCount()>0;
+  Map<Integer,Integer> stock=new HashMap<>(cart.getStart()==null?Map.of():Database.getDeviceDao().countAvailable(cart.getStart(),cart.getEnd()));BigDecimal subtotal=BigDecimal.ZERO;boolean available=cart.getCount()>0;
+  if(request.getSession().getAttribute("user") instanceof User user&&cart.getPendingUserId()==user.getId()&&cart.getPendingOrderId()>0){request.setAttribute("pendingCheckoutOrder",cart.getPendingOrderId());cart.getPendingQuantities().forEach((id,qty)->stock.merge(id,qty,Integer::sum));}
   for(var entry:cart.getQuantities().entrySet()){
    Product product=products.get(entry.getKey());String image=null;
    if(product!=null&&product.getImage()!=null){String raw=product.getImage().replace('\\','/');String file=raw.substring(raw.lastIndexOf('/')+1);try{if(request.getServletContext().getResource("/assets/images/"+file)!=null)image=request.getContextPath()+"/assets/images/"+URLEncoder.encode(file,StandardCharsets.UTF_8).replace("+","%20");}catch(Exception ignored){}}

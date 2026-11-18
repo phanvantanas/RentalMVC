@@ -63,7 +63,7 @@
     const editorProduct = document.querySelector('#editor-product');
     function openEditor(row = null) {
         editor.querySelector('.inventory-form').reset();
-        document.querySelector('#device-editor-title').textContent = row ? 'Chỉnh sửa thiết bị' : 'Thêm thiết bị mới';
+        document.querySelector('#device-editor-title').textContent = row ? 'Chỉnh sửa thiết bị' : 'Nhập thêm thiết bị';
         document.querySelector('#editor-action').value = row ? 'edit' : 'create';
         document.querySelector('#editor-id').value = row ? row.dataset.id : '';
         editorProduct.value = row ? row.dataset.product : '';
@@ -73,6 +73,7 @@
     }
     document.querySelector('#add-device').addEventListener('click',()=>openEditor());
     document.querySelectorAll('[data-edit]').forEach(button=>button.addEventListener('click',()=>openEditor(rows.find(row=>row.dataset.id===button.dataset.edit))));
+    document.querySelector('#add-product').addEventListener('click',()=>{document.querySelector('#product-editor .inventory-form').reset();document.querySelector('#product-editor').showModal();});
     const bulkDialog = document.querySelector('#device-bulk-dialog');
     function openBulk(action, ids) {
         const labels = {price:'Cập nhật giá thuê',status:'Chuyển trạng thái thiết bị',delete:'Xóa thiết bị đã chọn'};

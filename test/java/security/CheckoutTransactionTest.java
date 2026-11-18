@@ -20,7 +20,7 @@ public class CheckoutTransactionTest {
    Dao dao=new Dao(con);MerchantBank bank=new MerchantBank("BIDV","0000000000","TEST FIXTURE");
    check(cart(1,1,1).getDiscount()==0,"One day price");check(cart(1,1,3).getDiscount()==10,"Three day discount");check(cart(1,1,5).getDiscount()==15,"Five day discount");check(cart(1,1,7).getDiscount()==20,"Seven day discount");
    int first=dao.place(1,cart(1,1,3),bank,new BigDecimal("405000"));check(scalar(con,"SELECT total FROM rentals WHERE id="+first)==405000,"Server total discount");check(scalar(con,"SELECT COUNT(*) FROM rental_items WHERE rental_id="+first)==1,"Device assigned");check(scalar(con,"SELECT COUNT(*) FROM rental_payments WHERE rental_id="+first+" AND status='pending'")==1,"Payment pending");
-   check(dao.payment(first,2)==null,"Other user cannot read payment");dao.report(first,2);check("pending".equals(dao.payment(first,1).get("status")),"Other user cannot report payment");dao.report(first,1);check("reported".equals(dao.payment(first,1).get("status")),"Customer report remains unverified");check(dao.confirmPaid(first),"Admin confirmation");check(!dao.confirmPaid(first),"Duplicate confirmation ignored");
+   check("pending".equals(dao.cartPaymentState(first,1)),"Pending cart payment state");check("missing".equals(dao.cartPaymentState(first,2)),"Other owner cannot reconcile cart payment");check(dao.payment(first,2)==null,"Other user cannot read payment");dao.report(first,2);check("pending".equals(dao.payment(first,1).get("status")),"Other user cannot report payment");dao.report(first,1);check("reported".equals(dao.payment(first,1).get("status")),"Customer report remains unverified");check("reported".equals(dao.cartPaymentState(first,1)),"Reported payment remains pending for cart");check(dao.confirmPaid(first),"Admin confirmation");check("paid".equals(dao.cartPaymentState(first,1)),"Only confirmed payment reconciles cart");check(!dao.confirmPaid(first),"Duplicate confirmation ignored");
    try{dao.place(1,cart(1,2,3),bank);throw new AssertionError("Overselling allowed");}catch(IllegalArgumentException expected){checks++;}check(scalar(con,"SELECT COUNT(*) FROM rentals")==1,"No partial order on stock failure");
    int second=dao.place(1,cart(1,1,3),bank);check(scalar(con,"SELECT COUNT(DISTINCT device_id) FROM rental_items")==2,"Distinct physical devices");
    try{dao.place(1,cart(1,1,3),bank);throw new AssertionError("Reserved device sold twice");}catch(IllegalArgumentException expected){checks++;}
@@ -34,7 +34,7 @@ public class CheckoutTransactionTest {
    check(admin.transition(second,"pending","confirmed")==null,"Approve unpaid reservation");
    check(admin.transition(second,"confirmed","renting")!=null,"Reject handover before payment confirmation");
    check(admin.transition(second,"confirmed","cancelled")==null,"Cancel unpaid order");
-   dao.report(second,1);check(!dao.confirmPaid(second),"Cancelled order cannot be marked paid");
+   check("cancelled".equals(dao.cartPaymentState(second,1)),"Cancelled order keeps cart contents");dao.report(second,1);check(!dao.confirmPaid(second),"Cancelled order cannot be marked paid");
    check(dao.payment(first,1).get("qrPayload").equals("00020101021238540010A00000072701240006970418011000000000000208QRIBFTTA530370454064050005802VN62120808LENSCAM163043301"),"Offline QR matches official vietqr payload and CRC");
   }
   System.out.println("PASS: "+checks+" checkout transaction checks using TEMPORARY tables only; no real orders or transfers.");

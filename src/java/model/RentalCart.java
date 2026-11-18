@@ -3,6 +3,17 @@ import java.io.Serializable;import java.time.*;import java.util.*;
 public class RentalCart implements Serializable {
  private final Map<Integer,Integer> quantities=new LinkedHashMap<>();
  private LocalDate start,end;private String pickupTime="08:00",returnTime="17:00";
+ private int pendingOrderId,pendingUserId;
+ private Map<Integer,Integer> pendingQuantities=new LinkedHashMap<>();
+ public int getPendingOrderId(){return pendingOrderId;}public int getPendingUserId(){return pendingUserId;}
+ public Map<Integer,Integer> getPendingQuantities(){return new LinkedHashMap<>(pendingQuantities);}
+ public void beginPayment(int orderId,int userId){if(orderId<=0||userId<=0||pendingOrderId>0||getCount()==0)throw new IllegalArgumentException("Giỏ hàng đã có đơn chờ thanh toán.");pendingOrderId=orderId;pendingUserId=userId;pendingQuantities=new LinkedHashMap<>(quantities);}
+ public void finishPayment(int orderId,int userId,boolean paid){
+  if(orderId!=pendingOrderId||userId!=pendingUserId)return;
+  Map<Integer,Integer> purchased=new LinkedHashMap<>(pendingQuantities);pendingOrderId=0;pendingUserId=0;pendingQuantities.clear();
+  if(paid)for(var item:purchased.entrySet()){int left=quantities.getOrDefault(item.getKey(),0)-item.getValue();if(left>0)quantities.put(item.getKey(),left);else quantities.remove(item.getKey());}
+  if(quantities.isEmpty()){start=null;end=null;}
+ }
  public Map<Integer,Integer> getQuantities(){return new LinkedHashMap<>(quantities);}
  public int getCount(){return quantities.values().stream().mapToInt(Integer::intValue).sum();}
  public LocalDate getStart(){return start;}public LocalDate getEnd(){return end;}public String getPickupTime(){return pickupTime;}public String getReturnTime(){return returnTime;}
@@ -18,9 +29,9 @@ public class RentalCart implements Serializable {
   if(total>10||getCount()+quantity>50||(!quantities.containsKey(id)&&quantities.size()>=20))throw new IllegalArgumentException("Giỏ hàng tối đa 20 mẫu, 50 thiết bị và 10 thiết bị mỗi mẫu.");
   start=from;end=to;pickupTime=pickup;returnTime=dropoff;quantities.put(id,total);
  }
- public void update(int id,int quantity){if(!quantities.containsKey(id)||quantity<1||quantity>10||getCount()-quantities.get(id)+quantity>50)throw new IllegalArgumentException("Số lượng không hợp lệ.");quantities.put(id,quantity);}
- public void remove(int id){quantities.remove(id);if(quantities.isEmpty())clear();}
- public void clear(){quantities.clear();start=null;end=null;}
+ public void update(int id,int quantity){if(!quantities.containsKey(id)||quantity<1||quantity>10||getCount()-quantities.get(id)+quantity>50)throw new IllegalArgumentException("Số lượng không hợp lệ.");quantities.put(id,quantity);if(pendingQuantities.containsKey(id))pendingQuantities.put(id,Math.min(pendingQuantities.get(id),quantity));}
+ public void remove(int id){quantities.remove(id);pendingQuantities.remove(id);if(quantities.isEmpty())clear();}
+ public void clear(){quantities.clear();pendingQuantities.clear();start=null;end=null;}
  public static void validateDates(LocalDate start,LocalDate end){if(start==null||end==null||start.isBefore(LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh")))||!end.isAfter(start)||java.time.temporal.ChronoUnit.DAYS.between(start,end)>365)throw new IllegalArgumentException("Ngày thuê không hợp lệ; thời gian thuê tối đa 365 ngày.");}
  public static void validateTime(String value){if(value==null||!value.matches("(0[89]|1[0-8]):00"))throw new IllegalArgumentException("Giờ nhận/trả không hợp lệ.");}
 }

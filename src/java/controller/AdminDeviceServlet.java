@@ -21,6 +21,9 @@ public class AdminDeviceServlet extends HttpServlet {
         try{
             List<AdminDevice> devices=new AdminDeviceDao().findAll();Map<String,Integer> counts=new HashMap<>();Map<Integer,String> images=new HashMap<>();
             Set<String> files=getServletContext().getResourcePaths("/assets/images/");
+            List<String> productImageFiles=new ArrayList<>();
+            if(files!=null)for(String file:files)if(file.matches("(?i).+\\.(png|jpe?g|webp|gif)$"))productImageFiles.add(file.substring(file.lastIndexOf('/')+1));
+            productImageFiles.sort(String.CASE_INSENSITIVE_ORDER);request.setAttribute("productImageFiles",productImageFiles);
             for(AdminDevice d:devices){
                 counts.merge(d.getEffectiveStatus(),1,Integer::sum);
                 String raw=d.getImage()==null?"":d.getImage().replace('\\','/');String filename=raw.substring(raw.lastIndexOf('/')+1);
@@ -38,7 +41,12 @@ public class AdminDeviceServlet extends HttpServlet {
         if(!(expected instanceof String)||token==null||!MessageDigest.isEqual(token.getBytes(StandardCharsets.UTF_8),((String)expected).getBytes(StandardCharsets.UTF_8))){response.sendError(403);return;}
         try{
             String action=request.getParameter("action");AdminDeviceDao dao=new AdminDeviceDao();
-            if("create".equals(action)||"edit".equals(action)){
+            if("create_product".equals(action)) {
+                String image=Objects.toString(request.getParameter("image"),"").trim();
+                Set<String> files=getServletContext().getResourcePaths("/assets/images/");
+                if(!image.isEmpty()&&(files==null||!files.contains("/assets/images/"+image)||!image.matches("(?i).+\\.(png|jpe?g|webp|gif)$")))throw new IllegalArgumentException("Vui lòng chọn ảnh có sẵn trong thư mục assets/images.");
+                new AdminProductDao().create(Integer.parseInt(request.getParameter("id_category")),Objects.toString(request.getParameter("name"),"").trim(),image,new BigDecimal(Objects.toString(request.getParameter("price"),"")),Objects.toString(request.getParameter("description"),"").trim(),request.getParameter("product_status"),Objects.toString(request.getParameter("serial"),"").trim(),request.getParameter("status"));
+            }else if("create".equals(action)||"edit".equals(action)){
                 Integer id="edit".equals(action)?Integer.valueOf(request.getParameter("id")):null;
                 dao.save(id,Integer.parseInt(request.getParameter("product_id")),Objects.toString(request.getParameter("serial"),"").trim(),request.getParameter("status"));
             }else{

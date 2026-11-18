@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @WebServlet(name="AdminDashboardServlet",urlPatterns={"/admin","/admin/overview"})
 public class AdminDashboardServlet extends HttpServlet {
@@ -30,6 +32,16 @@ public class AdminDashboardServlet extends HttpServlet {
         request.setAttribute("statusLabels",Map.of("pending","Chờ duyệt","confirmed","Chờ giao máy","renting","Đang thuê","returned","Đã trả","cancelled","Đã hủy"));
         try {
             Map<String,Object> dashboard=new DashboardDao().load(from,to);
+            Set<String> images=getServletContext().getResourcePaths("/assets/images/");
+            for(Object item:(List<?>)dashboard.get("top")) {
+                @SuppressWarnings("unchecked") Map<String,Object> row=(Map<String,Object>)item;
+                String image=Objects.toString(row.get("image"),"").replace('\\','/');
+                String name=image.substring(image.lastIndexOf('/')+1);
+                if(images!=null&&!name.isEmpty()) for(String file:images) {
+                    String actual=file.substring(file.lastIndexOf('/')+1);
+                    if(actual.equalsIgnoreCase(name)) {row.put("imageUrl",request.getContextPath()+"/assets/images/"+URLEncoder.encode(actual,StandardCharsets.UTF_8).replace("+","%20"));break;}
+                }
+            }
             request.setAttribute("dashboard",dashboard);
             if("csv".equals(request.getParameter("export"))) {
                 response.setContentType("text/csv;charset=UTF-8");response.setHeader("Content-Disposition","attachment; filename=\"lenscam-overview.csv\"");

@@ -16,7 +16,7 @@ public class CartServlet extends HttpServlet {
     else if("add".equals(action)||"buy".equals(action)){
      int id=Integer.parseInt(q.getParameter("product"));LocalDate start=LocalDate.parse(q.getParameter("start")),end=LocalDate.parse(q.getParameter("end"));RentalCart.validateDates(start,end);
      Product product=Database.getProductDao().find(id);if(product==null||!"active".equals(product.getStatus()))throw new IllegalArgumentException("Thiết bị không còn cho thuê.");
-     int required=cart.getQuantities().getOrDefault(id,0)+1;int stock=Database.getDeviceDao().countAvailable(start,end).getOrDefault(id,0);if(stock<required)throw new IllegalArgumentException("Không đủ thiết bị trống cho lịch thuê đã chọn.");
+     int required=cart.getQuantities().getOrDefault(id,0)+1;int stock=Database.getDeviceDao().countAvailable(start,end).getOrDefault(id,0);if(q.getSession().getAttribute("user") instanceof User user&&cart.getPendingUserId()==user.getId()&&start.equals(cart.getStart())&&end.equals(cart.getEnd()))stock+=cart.getPendingQuantities().getOrDefault(id,0);if(stock<required)throw new IllegalArgumentException("Không đủ thiết bị trống cho lịch thuê đã chọn.");
      cart.add(id,1,start,end,q.getParameter("pickup_time"),q.getParameter("return_time"));if("buy".equals(action))destination="/checkout";
     }else throw new IllegalArgumentException("Thao tác giỏ hàng không hợp lệ.");
     q.getSession().removeAttribute("checkoutNonce");q.getSession().removeAttribute("checkoutQuote");

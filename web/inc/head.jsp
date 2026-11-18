@@ -8,6 +8,6 @@
     <link rel="stylesheet" href="${ctx}/assets/css/rental-search.css">
     <link rel="stylesheet" href="${ctx}/assets/css/footer.css">
     <link rel="stylesheet" href="${ctx}/assets/css/catalog-controls.css">
-    <link rel="stylesheet" href="${ctx}/assets/css/shop.css?v=1">
+    <link rel="stylesheet" href="${ctx}/assets/css/shop.css?v=3-pending-cart">
     <script src="${ctx}/assets/js/catalog.js?v=cart1" defer></script>
 </head>
