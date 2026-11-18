@@ -5,6 +5,7 @@
         <h1 id="login-title">Đăng nhập LensCam</h1>
     </header>
     <div class="auth-divider"></div>
+    <c:if test="${param.account eq 'unavailable'}"><p class="auth-message auth-error" role="alert">Tài khoản đã bị khóa hoặc không còn tồn tại. Vui lòng liên hệ quản trị viên.</p></c:if>
     <c:if test="${not empty sessionScope.error_login}"><p class="auth-message auth-error" role="alert"><c:out value="${sessionScope.error_login}"/></p></c:if>
     <c:if test="${not empty sessionScope.success_register}"><p class="auth-message auth-success" role="status"><c:out value="${sessionScope.success_register}"/></p></c:if>
     <form id="login-form" action="${ctx}/login" method="post">

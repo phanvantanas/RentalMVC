@@ -44,7 +44,7 @@ public class AdminSecurityTest {
     }
     static HttpServletResponse response(ResponseState state) {
         return (HttpServletResponse) Proxy.newProxyInstance(AdminSecurityTest.class.getClassLoader(), new Class<?>[]{HttpServletResponse.class}, (p,m,a) -> {
-            if (m.getName().equals("sendError")) state.status = (Integer)a[0];
+            if (m.getName().equals("sendError") || m.getName().equals("setStatus")) state.status = (Integer)a[0];
             if (m.getName().equals("sendRedirect")) { state.status = 302; state.location = (String)a[0]; }
             return defaultValue(m.getReturnType());
         });

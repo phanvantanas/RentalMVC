@@ -13,7 +13,7 @@ import java.util.List;
 import model.User;
 
 public class UserImpl implements UserDao {
-    private Connection getConnection() {
+    protected Connection getConnection() {
         return MySQLDriver.getConnection();
     }
 
@@ -23,9 +23,9 @@ public class UserImpl implements UserDao {
         emailphone = normalizeIdentifier(emailphone);
         String sql;
         if (emailphone != null && emailphone.contains("@")) {
-            sql = "SELECT * FROM users WHERE email=? AND BINARY password=BINARY ?";
+            sql = "SELECT * FROM users WHERE email=? AND status='active'";
         } else {
-            sql = "SELECT * FROM users WHERE phone=? AND BINARY password=BINARY ?";
+            sql = "SELECT * FROM users WHERE phone=? AND status='active'";
         }
 
         Connection con = getConnection();
@@ -33,10 +33,10 @@ public class UserImpl implements UserDao {
 
         try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, emailphone);
-            sttm.setString(2, password);
             try (ResultSet rs = sttm.executeQuery()) {
-                if (rs.next()) {
-                    return mapUser(rs);
+                while (rs.next()) {
+                    if (!service.Passwords.verify(password, rs.getString("password"))) continue;
+                    User user = mapUser(rs); user.setPassword(null); return user;
                 }
             }
         } catch (SQLException ex) {
@@ -106,7 +106,7 @@ public class UserImpl implements UserDao {
             sttm.setString(1, user.getName());
             sttm.setString(2, user.getEmail());
             sttm.setString(3, user.getPhone());
-            sttm.setString(4, user.getPassword());
+            sttm.setString(4, service.Passwords.hash(user.getPassword()));
             sttm.setString(5, user.getRole() != null ? user.getRole() : "user");
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {

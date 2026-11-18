@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f8f9ff">
     <title>Đăng nhập LensCam</title>
-    <link rel="stylesheet" href="${ctx}/assets/css/auth.css?v=1">
+    <link rel="stylesheet" href="${ctx}/assets/css/auth.css?v=20261118-weight500">
     <script src="${ctx}/assets/js/auth.js?v=20261118-login" defer></script>
 </head>
 <body class="auth-page">

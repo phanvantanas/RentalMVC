@@ -86,8 +86,8 @@ public class RegisterServlet extends HttpServlet {
         if (!phone.matches("^[0-9]{9,11}$")) {
             return "Số điện thoại phải từ 9 đến 11 chữ số!";
         }
-        if (password.length() < 8) {
-            return "Mật khẩu phải có ít nhất 8 ký tự!";
+        if (password.length() < 8 || password.length() > 128) {
+            return "Mật khẩu phải từ 8 đến 128 ký tự!";
         }
         if (!password.equals(confirm)) {
             return "Xác nhận mật khẩu không trùng khớp!";

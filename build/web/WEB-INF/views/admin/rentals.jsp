@@ -4,7 +4,7 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <fmt:setLocale value="vi_VN"/>
 <c:set var="ctx" value="${pageContext.request.contextPath}"/>
-<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#213145"><title>Quản lý đơn thuê | LensCam Admin</title><link rel="stylesheet" href="${ctx}/assets/css/admin.css?v=1"><script src="${ctx}/assets/js/admin-rentals.js" defer></script></head>
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#213145"><title>Quản lý đơn thuê | LensCam Admin</title><link rel="stylesheet" href="${ctx}/assets/css/admin.css?v=20261118-workflow"><link rel="stylesheet" href="${ctx}/assets/css/admin-confirm.css?v=1"><script src="${ctx}/assets/js/admin-rentals.js?v=center-confirm" defer></script></head>
 <body>
 <%@include file="/inc/icons.jsp"%>
 <%@include file="/inc/admin/sidebar.jsp"%>
@@ -23,4 +23,5 @@
         <p class="admin-footnote">LENSCAM ADMIN CONSOLE · Chỉ dành cho quản trị viên</p>
     </main>
 </div>
+<%@include file="/inc/admin/rental-confirm-dialog.jsp"%>
 </body></html>

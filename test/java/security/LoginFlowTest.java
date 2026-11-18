@@ -27,6 +27,9 @@ public class LoginFlowTest {
    if(mode==1)check(String.valueOf(session.getAttribute("error_login")).contains("Không thể kết nối"),"Database error distinguished");
    if(mode>=2){check(rotations[0]==1,"Session rotated");check(e.result==session.getAttribute("user"),"Principal saved");check((mode==2?"admin":"home").equals(state.location),"Role redirect");}
   }
+  for(String destination:List.of("/my-rentals","/my-rentals?order=5","/checkout?order=5","https://example.com","//example.com","/my-rentals?order=5&user_id=2")){
+   Endpoint e=new Endpoint();e.result=new User(1,"Preview User","","","","user");var session=AdminSecurityTest.session(null,null);session.setAttribute("afterLogin",destination);var state=new AdminSecurityTest.ResponseState();e.post(AdminSecurityTest.request(session,Map.of("emailphone","test@example.com","password","fixture")),AdminSecurityTest.response(state));boolean safe=destination.equals("/my-rentals")||destination.equals("/my-rentals?order=5")||destination.equals("/checkout?order=5");check((safe?"/RentalCamera"+destination:"home").equals(state.location),"Tracking redirect allowlist: "+destination);
+  }
   System.out.println("PASS: "+checks+" login regression checks; no database writes.");
  }
 }

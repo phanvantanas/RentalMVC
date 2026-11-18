@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f8f9ff">
     <title>Tạo tài khoản LensCam</title>
-    <link rel="stylesheet" href="${ctx}/assets/css/auth.css?v=1">
+    <link rel="stylesheet" href="${ctx}/assets/css/auth.css?v=20261118-weight500">
     <link rel="stylesheet" href="${ctx}/assets/css/register.css?v=1">
     <script src="${ctx}/assets/js/register.js" defer></script>
 </head>

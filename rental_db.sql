@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
   email      VARCHAR(150) NOT NULL UNIQUE,
   phone      VARCHAR(20)  NULL,
   password   VARCHAR(255) NOT NULL,              -- lưu hash (bcrypt/argon2 hoặc text thuần)
-  role       ENUM('admin','customer') NOT NULL DEFAULT 'customer',
+  role       ENUM('admin','user') NOT NULL DEFAULT 'user',
+  status     ENUM('active','locked') NOT NULL DEFAULT 'active',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -92,7 +93,7 @@ CREATE TABLE IF NOT EXISTS rental_items (
 -- =====================================================
 INSERT INTO users (name, email, phone, password, role) VALUES
 ('Quản trị viên', 'admin@rental.com', '0901234567', 'admin123', 'admin'),
-('Nguyễn Văn A', 'customer@gmail.com', '0987654321', '123456', 'customer')
+('Nguyễn Văn A', 'customer@gmail.com', '0987654321', '123456', 'user')
 ON DUPLICATE KEY UPDATE name=VALUES(name);
 
 INSERT INTO categories (name) VALUES
