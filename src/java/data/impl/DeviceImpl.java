@@ -2,37 +2,42 @@ package data.impl;
 
 import data.dao.DeviceDao;
 import data.driver.MySQLDriver;
+
+import model.Device;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.time.LocalDate;
-import model.Device;
 
 public class DeviceImpl implements DeviceDao {
     @Override
     public Map<Integer, Integer> countAvailable(LocalDate start, LocalDate end) {
         Map<Integer, Integer> counts = new HashMap<>();
-        String sql = "SELECT d.product_id, COUNT(*) AS available_count FROM devices d "
-                + "WHERE d.status='available' AND NOT EXISTS ("
-                + "SELECT 1 FROM rental_items ri JOIN rentals r ON r.id=ri.rental_id "
-                + "WHERE ri.device_id=d.id AND r.status IN ('pending','confirmed','renting') "
-                + "AND r.start_date <= ? AND r.end_date >= ?) GROUP BY d.product_id";
+        String sql =
+                "SELECT d.product_id, COUNT(*) AS available_count FROM devices d WHERE"
+                    + " d.status='available' AND NOT EXISTS (SELECT 1 FROM rental_items ri JOIN"
+                    + " rentals r ON r.id=ri.rental_id WHERE ri.device_id=d.id AND r.status IN"
+                    + " ('pending','confirmed','renting') AND r.start_date <= ? AND r.end_date >="
+                    + " ?) GROUP BY d.product_id";
         try (Connection con = getConnection()) {
             if (con == null) return counts;
             try (PreparedStatement statement = con.prepareStatement(sql)) {
                 statement.setDate(1, java.sql.Date.valueOf(end));
                 statement.setDate(2, java.sql.Date.valueOf(start));
                 try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) counts.put(rs.getInt("product_id"), rs.getInt("available_count"));
+                    while (rs.next())
+                        counts.put(rs.getInt("product_id"), rs.getInt("available_count"));
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(DeviceImpl.class.getName()).log(System.Logger.Level.ERROR, "Cannot load availability", ex);
+            System.getLogger(DeviceImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, "Cannot load availability", ex);
         }
         return counts;
     }
@@ -48,13 +53,15 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql);
-             ResultSet rs = sttm.executeQuery()) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql);
+                ResultSet rs = sttm.executeQuery()) {
             while (rs.next()) {
                 list.add(mapDevice(rs));
             }
         } catch (SQLException ex) {
-            System.getLogger(DeviceImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(DeviceImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return list;
     }
@@ -66,7 +73,8 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, productId);
             try (ResultSet rs = sttm.executeQuery()) {
                 while (rs.next()) {
@@ -74,7 +82,8 @@ public class DeviceImpl implements DeviceDao {
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(DeviceImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(DeviceImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return list;
     }
@@ -82,11 +91,13 @@ public class DeviceImpl implements DeviceDao {
     @Override
     public List<Device> findAvailableByProductId(int productId) {
         List<Device> list = new ArrayList<>();
-        String sql = "SELECT * FROM devices WHERE product_id=? AND status='available' ORDER BY id ASC";
+        String sql =
+                "SELECT * FROM devices WHERE product_id=? AND status='available' ORDER BY id ASC";
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, productId);
             try (ResultSet rs = sttm.executeQuery()) {
                 while (rs.next()) {
@@ -94,7 +105,8 @@ public class DeviceImpl implements DeviceDao {
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(DeviceImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(DeviceImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return list;
     }
@@ -105,7 +117,8 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return null;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             try (ResultSet rs = sttm.executeQuery()) {
                 if (rs.next()) {
@@ -113,7 +126,8 @@ public class DeviceImpl implements DeviceDao {
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(DeviceImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(DeviceImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return null;
     }
@@ -124,7 +138,8 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return null;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, serial);
             try (ResultSet rs = sttm.executeQuery()) {
                 if (rs.next()) {
@@ -132,7 +147,8 @@ public class DeviceImpl implements DeviceDao {
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(DeviceImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(DeviceImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return null;
     }
@@ -143,13 +159,15 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, device.getProductId());
             sttm.setString(2, device.getSerial());
             sttm.setString(3, device.getStatus() != null ? device.getStatus() : "available");
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {
-            System.getLogger(DeviceImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(DeviceImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return false;
     }
@@ -160,12 +178,14 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, status);
             sttm.setInt(2, id);
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {
-            System.getLogger(DeviceImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(DeviceImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return false;
     }
@@ -176,11 +196,13 @@ public class DeviceImpl implements DeviceDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {
-            System.getLogger(DeviceImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(DeviceImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return false;
     }

@@ -7,13 +7,20 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
+
 import model.User;
 
-@WebFilter(filterName = "AdminAccessFilter", urlPatterns = {"/admin", "/admin/*", "/inc/admin/*"})
+import java.io.IOException;
+
+@WebFilter(
+        filterName = "AdminAccessFilter",
+        urlPatterns = {"/admin", "/admin/*", "/inc/admin/*"})
 public class AdminAccessFilter implements Filter {
     @Override
-    public void doFilter(jakarta.servlet.ServletRequest req, jakarta.servlet.ServletResponse res, FilterChain chain)
+    public void doFilter(
+            jakarta.servlet.ServletRequest req,
+            jakarta.servlet.ServletResponse res,
+            FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
@@ -25,7 +32,9 @@ public class AdminAccessFilter implements Filter {
             return;
         }
         if (!"admin".equalsIgnoreCase(((User) principal).getRole())) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Chỉ quản trị viên được truy cập khu vực này.");
+            response.sendError(
+                    HttpServletResponse.SC_FORBIDDEN,
+                    "Chỉ quản trị viên được truy cập khu vực này.");
             return;
         }
         chain.doFilter(req, res);

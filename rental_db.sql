@@ -115,3 +115,25 @@ INSERT INTO devices (product_id, serial, status) VALUES
 (2, 'SN-SONY-FX3-001', 'available'),
 (3, 'SN-CANON-R6II-001', 'available'),
 (4, 'SN-FUJI-XT5-001', 'available');
+
+-- Return audit and separate late-fee collection
+CREATE TABLE IF NOT EXISTS rental_returns (
+    rental_id INT UNSIGNED PRIMARY KEY,
+    due_at DATETIME NOT NULL,
+    actual_return_at DATETIME NOT NULL,
+    late_seconds BIGINT UNSIGNED NOT NULL,
+    daily_rate DECIMAL(12,2) NOT NULL,
+    charged_percent INT UNSIGNED NOT NULL,
+    calculated_fee DECIMAL(12,2) NOT NULL,
+    final_fee DECIMAL(12,2) NOT NULL,
+    adjustment_reason VARCHAR(500) NULL,
+    received_by INT UNSIGNED NOT NULL,
+    received_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fee_status ENUM('unpaid','paid','waived') NOT NULL,
+    fee_paid_at DATETIME NULL,
+    fee_received_by INT UNSIGNED NULL,
+    policy_version VARCHAR(40) NOT NULL,
+    CONSTRAINT fk_returns_rental FOREIGN KEY (rental_id) REFERENCES rentals(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_returns_receiver FOREIGN KEY (received_by) REFERENCES users(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_returns_fee_receiver FOREIGN KEY (fee_received_by) REFERENCES users(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

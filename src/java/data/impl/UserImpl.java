@@ -1,8 +1,11 @@
 package data.impl;
 
-import data.dao.UserDao;
 import data.dao.DataAccessException;
+import data.dao.UserDao;
 import data.driver.MySQLDriver;
+
+import model.User;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,7 +13,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import model.User;
 
 public class UserImpl implements UserDao {
     protected Connection getConnection() {
@@ -19,7 +21,8 @@ public class UserImpl implements UserDao {
 
     @Override
     public User findUser(String emailphone, String password) {
-        if (emailphone == null || password == null || emailphone.isBlank() || password.isEmpty()) return null;
+        if (emailphone == null || password == null || emailphone.isBlank() || password.isEmpty())
+            return null;
         emailphone = normalizeIdentifier(emailphone);
         String sql;
         if (emailphone != null && emailphone.contains("@")) {
@@ -31,12 +34,15 @@ public class UserImpl implements UserDao {
         Connection con = getConnection();
         if (con == null) throw new DataAccessException("Authentication database is unavailable");
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, emailphone);
             try (ResultSet rs = sttm.executeQuery()) {
                 while (rs.next()) {
                     if (!service.Passwords.verify(password, rs.getString("password"))) continue;
-                    User user = mapUser(rs); user.setPassword(null); return user;
+                    User user = mapUser(rs);
+                    user.setPassword(null);
+                    return user;
                 }
             }
         } catch (SQLException ex) {
@@ -57,7 +63,8 @@ public class UserImpl implements UserDao {
         Connection con = getConnection();
         if (con == null) return null;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             try (ResultSet rs = sttm.executeQuery()) {
                 if (rs.next()) {
@@ -65,7 +72,8 @@ public class UserImpl implements UserDao {
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(UserImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(UserImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return null;
     }
@@ -75,13 +83,15 @@ public class UserImpl implements UserDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, value);
             try (ResultSet rs = sttm.executeQuery()) {
                 return rs.next();
             }
         } catch (SQLException ex) {
-            System.getLogger(UserImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(UserImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return false;
     }
@@ -102,7 +112,8 @@ public class UserImpl implements UserDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, user.getName());
             sttm.setString(2, user.getEmail());
             sttm.setString(3, user.getPhone());
@@ -110,7 +121,8 @@ public class UserImpl implements UserDao {
             sttm.setString(5, user.getRole() != null ? user.getRole() : "user");
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {
-            System.getLogger(UserImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(UserImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return false;
     }
@@ -122,13 +134,15 @@ public class UserImpl implements UserDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql);
-             ResultSet rs = sttm.executeQuery()) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql);
+                ResultSet rs = sttm.executeQuery()) {
             while (rs.next()) {
                 list.add(mapUser(rs));
             }
         } catch (SQLException ex) {
-            System.getLogger(UserImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(UserImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return list;
     }

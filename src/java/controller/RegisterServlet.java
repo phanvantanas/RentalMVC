@@ -1,18 +1,23 @@
 package controller;
 
-import data.dao.Database;
 import data.dao.DataAccessException;
+import data.dao.Database;
 import data.dao.UserDao;
 import data.utils.API;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
 import model.User;
 
-@WebServlet(name = "RegisterServlet", urlPatterns = {"/register"})
+import java.io.IOException;
+
+@WebServlet(
+        name = "RegisterServlet",
+        urlPatterns = {"/register"})
 public class RegisterServlet extends HttpServlet {
 
     @Override
@@ -31,7 +36,9 @@ public class RegisterServlet extends HttpServlet {
         String phone = trim(request.getParameter("phone"));
         String password = request.getParameter("password");
         String confirm = request.getParameter("confirm");
-        if (password == null) password = "";
+        if (password == null) {
+            password = "";
+        }
 
         String error = validate(name, email, phone, password, confirm);
         User newUser = null;
@@ -61,7 +68,8 @@ public class RegisterServlet extends HttpServlet {
         }
 
         if (newUser == null) {
-            request.getSession().setAttribute("success_register", "Đăng ký thành công! Vui lòng đăng nhập.");
+            request.getSession()
+                    .setAttribute("success_register", "Đăng ký thành công! Vui lòng đăng nhập.");
             response.sendRedirect("login");
             return;
         }
@@ -76,7 +84,8 @@ public class RegisterServlet extends HttpServlet {
         return s == null ? "" : s.trim();
     }
 
-    private static String validate(String name, String email, String phone, String password, String confirm) {
+    private static String validate(
+            String name, String email, String phone, String password, String confirm) {
         if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || password.isEmpty()) {
             return "Vui lòng điền đầy đủ các thông tin!";
         }

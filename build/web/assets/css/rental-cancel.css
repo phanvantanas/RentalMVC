@@ -1,0 +1,45 @@
+.cancel-rental {
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid #efd1d6;
+    border-radius: 7px;
+    background: #fffafb;
+    font-size: 12px;
+}
+.cancel-rental summary {
+    cursor: pointer;
+    color: #b52a3e;
+    font-weight: 600;
+}
+.cancel-rental p {
+    font-size: 12px;
+    line-height: 1.8;
+    color: #65738b;
+    margin: 12px 0;
+}
+.cancel-rental button {
+    padding: 10px 14px;
+    border: 1px solid #b52a3e;
+    background: #fff;
+    color: #b52a3e;
+    border-radius: 5px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+.cancel-rental button:hover {
+    background: #fff1f2;
+}
+.cancel-rental button:focus-visible,
+.cancel-rental summary:focus-visible {
+    outline: 2px solid #b52a3e;
+    outline-offset: 3px;
+}
+.rental-flash {
+    padding: 14px 16px;
+    border-radius: 6px;
+    background: #e0f7ec;
+    color: #006b49;
+    font-size: 13px;
+    line-height: 1.8;
+}

@@ -6,8 +6,7 @@ public class RentalItem {
     private int deviceId;
     private double pricePerDay;
 
-    public RentalItem() {
-    }
+    public RentalItem() {}
 
     public RentalItem(int id, int rentalId, int deviceId, double pricePerDay) {
         this.id = id;

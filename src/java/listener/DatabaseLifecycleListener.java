@@ -1,9 +1,11 @@
 package listener;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
+
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -22,8 +24,12 @@ public class DatabaseLifecycleListener implements ServletContextListener {
         while (drivers.hasMoreElements()) {
             Driver driver = drivers.nextElement();
             if (driver.getClass().getClassLoader() == applicationLoader) {
-                try { DriverManager.deregisterDriver(driver); }
-                catch (SQLException ex) { event.getServletContext().log("Unable to deregister application JDBC driver", ex); }
+                try {
+                    DriverManager.deregisterDriver(driver);
+                } catch (SQLException ex) {
+                    event.getServletContext()
+                            .log("Unable to deregister application JDBC driver", ex);
+                }
             }
         }
     }

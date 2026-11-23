@@ -1,5 +1,63 @@
 <%@page pageEncoding="UTF-8"%>
-<dialog class="inventory-dialog" id="device-editor" aria-labelledby="device-editor-title"><form method="dialog"><button class="inventory-close" aria-label="Đóng">×</button></form><span class="eyebrow">LENSCAM ASSET CONTROL</span><h2 id="device-editor-title">Nhập thêm thiết bị</h2><p class="muted">Mỗi thiết bị vật lý có một số serial riêng.</p><form class="inventory-form" action="${ctx}/admin/devices" method="post"><input type="hidden" name="csrf" value="${sessionScope.adminCsrf}"><input type="hidden" name="action" id="editor-action" value="create"><input type="hidden" name="id" id="editor-id"><label>Mẫu thiết bị<select name="product_id" id="editor-product" required><option value="">Chọn mẫu thiết bị hiện có</option><c:forEach items="${products}" var="p"><option value="${p.id}"><c:out value="${p.name}"/></option></c:forEach></select></label><label>Số serial<input name="serial" id="editor-serial" maxlength="100" required placeholder="Ví dụ: CAM-SN-0001" autocomplete="off"></label><label>Trạng thái vật lý<select name="status" id="editor-status"><option value="available">Sẵn sàng</option><option value="maintenance">Bảo trì / Kiểm tra</option></select></label><p class="inventory-form-note">Thiết bị gắn với lịch thuê đang hiệu lực cần xử lý đơn thuê trước khi chỉnh sửa.</p><button class="button" type="submit" id="save-device">Lưu thiết bị</button></form></dialog>
-<dialog class="inventory-dialog" id="device-bulk-dialog" aria-labelledby="bulk-dialog-title"><form method="dialog"><button class="inventory-close" aria-label="Đóng">×</button></form><span class="eyebrow">THAO TÁC THIẾT BỊ</span><h2 id="bulk-dialog-title"></h2><p id="bulk-selection-description" class="muted"></p><form class="inventory-form" action="${ctx}/admin/devices" method="post"><input type="hidden" name="csrf" value="${sessionScope.adminCsrf}"><input type="hidden" name="action" id="bulk-action"><div id="bulk-device-ids"></div><label id="bulk-price-field">Giá thuê mới / ngày (VNĐ)<input id="bulk-price" name="price" type="number" min="0" max="9999999999.99" step="0.01" placeholder="Ví dụ: 350000"></label><label id="bulk-status-field">Trạng thái mới<select id="bulk-status" name="status"><option value="available">Sẵn sàng</option><option value="maintenance">Bảo trì / Kiểm tra</option></select></label><p id="bulk-warning" class="inventory-form-note"></p><button class="button" type="submit" id="bulk-confirm">Xác nhận</button></form></dialog>
+<dialog class="inventory-dialog" id="device-editor" aria-labelledby="device-editor-title">
+    <form method="dialog">
+        <button class="inventory-close" aria-label="Đóng">×</button>
+    </form>
+    <span class="eyebrow">LENSCAM ASSET CONTROL</span>
+    <h2 id="device-editor-title">Nhập thêm thiết bị</h2>
+    <p class="muted">Mỗi thiết bị vật lý có một số serial riêng.</p>
+    <form class="inventory-form" action="${ctx}/admin/devices" method="post">
+        <input type="hidden" name="csrf" value="${sessionScope.adminCsrf}">
+        <input type="hidden" name="action" id="editor-action" value="create">
+        <input type="hidden" name="id" id="editor-id">
+        <label>Mẫu thiết bị<select name="product_id" id="editor-product" required>
+                <option value="">Chọn mẫu thiết bị hiện có</option>
+                <c:forEach items="${products}" var="p">
+                    <option value="${p.id}">
+                        <c:out value="${p.name}" />
+                    </option>
+                </c:forEach>
+            </select>
+        </label>
+        <label>Số serial
+            <input name="serial" id="editor-serial" maxlength="100" required placeholder="Ví dụ: CAM-SN-0001"
+                autocomplete="off">
+        </label>
+        <label>Trạng thái vật lý<select name="status" id="editor-status">
+                <option value="available">Sẵn sàng</option>
+                <option value="maintenance">Bảo trì / Kiểm tra</option>
+            </select>
+        </label>
+        <p class="inventory-form-note">Thiết bị gắn với lịch thuê đang hiệu lực cần xử lý đơn thuê trước khi chỉnh sửa.
+        </p>
+        <button class="button" type="submit" id="save-device">Lưu thiết bị</button>
+    </form>
+</dialog>
+<dialog class="inventory-dialog" id="device-bulk-dialog" aria-labelledby="bulk-dialog-title">
+    <form method="dialog">
+        <button class="inventory-close" aria-label="Đóng">×</button>
+    </form>
+    <span class="eyebrow">THAO
+        TÁC THIẾT BỊ</span>
+    <h2 id="bulk-dialog-title"></h2>
+    <p id="bulk-selection-description" class="muted"></p>
+    <form class="inventory-form" action="${ctx}/admin/devices" method="post">
+        <input type="hidden" name="csrf" value="${sessionScope.adminCsrf}">
+        <input type="hidden" name="action" id="bulk-action">
+        <div id="bulk-device-ids"></div>
+        <label id="bulk-price-field">Giá thuê mới / ngày (VNĐ)
+            <input id="bulk-price" name="price" type="number" min="0" max="9999999999.99" step="0.01"
+                placeholder="Ví dụ: 350000">
+        </label>
+        <label id="bulk-status-field">Trạng thái mới<select id="bulk-status" name="status">
+                <option value="available">Sẵn sàng</option>
+                <option value="maintenance">Bảo trì / Kiểm tra</option>
+            </select>
+        </label>
+        <p id="bulk-warning" class="inventory-form-note"></p>
+        <button class="button" type="submit" id="bulk-confirm">Xác
+            nhận</button>
+    </form>
+</dialog>
 
 <%@include file="/inc/admin/product-dialog.jsp"%>

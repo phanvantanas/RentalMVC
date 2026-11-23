@@ -2,13 +2,15 @@ package data.impl;
 
 import data.dao.ProductDao;
 import data.driver.MySQLDriver;
+
+import model.Product;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import model.Product;
 
 public class ProductImpl implements ProductDao {
     private Connection getConnection() {
@@ -22,13 +24,15 @@ public class ProductImpl implements ProductDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql);
-             ResultSet rs = sttm.executeQuery()) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql);
+                ResultSet rs = sttm.executeQuery()) {
             while (rs.next()) {
                 list.add(mapProduct(rs));
             }
         } catch (SQLException ex) {
-            System.getLogger(ProductImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(ProductImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return list;
     }
@@ -40,7 +44,8 @@ public class ProductImpl implements ProductDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id_category);
             try (ResultSet rs = sttm.executeQuery()) {
                 while (rs.next()) {
@@ -48,7 +53,8 @@ public class ProductImpl implements ProductDao {
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(ProductImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(ProductImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return list;
     }
@@ -59,7 +65,8 @@ public class ProductImpl implements ProductDao {
         Connection con = getConnection();
         if (con == null) return null;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             try (ResultSet rs = sttm.executeQuery()) {
                 if (rs.next()) {
@@ -67,18 +74,22 @@ public class ProductImpl implements ProductDao {
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(ProductImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(ProductImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return null;
     }
 
     @Override
     public boolean insert(Product product) {
-        String sql = "INSERT INTO products(id_category, name, image, price, deposit, description, status) VALUES(?,?,?,?,?,?,?)";
+        String sql =
+                "INSERT INTO products(id_category, name, image, price, deposit, description,"
+                    + " status) VALUES(?,?,?,?,?,?,?)";
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, product.getId_category());
             sttm.setString(2, product.getName());
             sttm.setString(3, product.getImage());
@@ -88,18 +99,22 @@ public class ProductImpl implements ProductDao {
             sttm.setString(7, product.getStatus() != null ? product.getStatus() : "active");
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {
-            System.getLogger(ProductImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(ProductImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return false;
     }
 
     @Override
     public boolean update(Product product) {
-        String sql = "UPDATE products SET id_category=?, name=?, image=?, price=?, deposit=?, description=?, status=? WHERE id=?";
+        String sql =
+                "UPDATE products SET id_category=?, name=?, image=?, price=?, deposit=?,"
+                    + " description=?, status=? WHERE id=?";
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, product.getId_category());
             sttm.setString(2, product.getName());
             sttm.setString(3, product.getImage());
@@ -110,7 +125,8 @@ public class ProductImpl implements ProductDao {
             sttm.setInt(8, product.getId());
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {
-            System.getLogger(ProductImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(ProductImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return false;
     }
@@ -121,11 +137,13 @@ public class ProductImpl implements ProductDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {
-            System.getLogger(ProductImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(ProductImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return false;
     }
@@ -146,7 +164,8 @@ public class ProductImpl implements ProductDao {
         double deposit = depositConfigured ? rs.getDouble("deposit") : 0;
         String description = rs.getString("description");
         String status = rs.getString("status");
-        Product product = new Product(id, id_category, name, image, price, deposit, description, status);
+        Product product =
+                new Product(id, id_category, name, image, price, deposit, description, status);
         product.setDepositConfigured(depositConfigured);
         return product;
     }

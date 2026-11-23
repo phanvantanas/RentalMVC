@@ -2,13 +2,15 @@ package data.impl;
 
 import data.dao.RentalItemDao;
 import data.driver.MySQLDriver;
+
+import model.RentalItem;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import model.RentalItem;
 
 public class RentalItemImpl implements RentalItemDao {
     private Connection getConnection() {
@@ -22,7 +24,8 @@ public class RentalItemImpl implements RentalItemDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, rentalId);
             try (ResultSet rs = sttm.executeQuery()) {
                 while (rs.next()) {
@@ -30,7 +33,8 @@ public class RentalItemImpl implements RentalItemDao {
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(RentalItemImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(RentalItemImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return list;
     }
@@ -41,13 +45,15 @@ public class RentalItemImpl implements RentalItemDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, item.getRentalId());
             sttm.setInt(2, item.getDeviceId());
             sttm.setDouble(3, item.getPricePerDay());
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {
-            System.getLogger(RentalItemImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(RentalItemImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return false;
     }
@@ -72,12 +78,18 @@ public class RentalItemImpl implements RentalItemDao {
                 con.commit();
                 return true;
             } catch (SQLException ex) {
-                try { con.rollback(); } catch (SQLException rollback) { ex.addSuppressed(rollback); }
-                System.getLogger(RentalItemImpl.class.getName()).log(System.Logger.Level.ERROR, "Cannot save rental items", ex);
+                try {
+                    con.rollback();
+                } catch (SQLException rollback) {
+                    ex.addSuppressed(rollback);
+                }
+                System.getLogger(RentalItemImpl.class.getName())
+                        .log(System.Logger.Level.ERROR, "Cannot save rental items", ex);
                 return false;
             }
         } catch (SQLException ex) {
-            System.getLogger(RentalItemImpl.class.getName()).log(System.Logger.Level.ERROR, "Cannot close rental connection", ex);
+            System.getLogger(RentalItemImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, "Cannot close rental connection", ex);
             return false;
         }
     }

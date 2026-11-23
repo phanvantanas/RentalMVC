@@ -1,2 +1,40 @@
 <%@page pageEncoding="UTF-8"%>
-<h2>Tóm tắt thuê thiết bị</h2><dl class="shop-totals"><div><dt>Ngày nhận</dt><dd>${cart.startLabel}<small>${cart.pickupTime}</small></dd></div><div><dt>Ngày trả</dt><dd>${cart.endLabel}<small>${cart.returnTime}</small></dd></div><div><dt>Thời gian</dt><dd>${cart.days} ngày</dd></div><div><dt>Số thiết bị</dt><dd>${cart.count}</dd></div><div><dt>Tiền thuê</dt><dd><fmt:formatNumber value="${cartSubtotal}" maxFractionDigits="0"/>đ</dd></div><div class="savings"><dt>Ưu đãi ${cart.discount}%</dt><dd>−<fmt:formatNumber value="${cartSaving}" maxFractionDigits="0"/>đ</dd></div><div class="grand-total"><dt>Tổng thanh toán</dt><dd><fmt:formatNumber value="${cartTotal}" maxFractionDigits="0"/>đ</dd></div></dl>
+<h2>Tóm tắt thuê thiết bị</h2>
+<dl class="shop-totals">
+    <div>
+        <dt>Ngày nhận</dt>
+        <dd>${cart.startLabel}<small>${cart.pickupTime}</small>
+        </dd>
+    </div>
+    <div>
+        <dt>Ngày trả</dt>
+        <dd>${cart.endLabel}<small>${cart.returnTime}</small>
+        </dd>
+    </div>
+    <div>
+        <dt>Thời gian</dt>
+        <dd>${cart.days} ngày</dd>
+    </div>
+    <div>
+        <dt>Số thiết bị</dt>
+        <dd>${cart.count}</dd>
+    </div>
+    <div>
+        <dt>Tiền thuê</dt>
+        <dd>
+            <fmt:formatNumber value="${cartSubtotal}" maxFractionDigits="0" />đ
+        </dd>
+    </div>
+    <div class="savings">
+        <dt>Ưu đãi ${cart.discount}%</dt>
+        <dd>−
+            <fmt:formatNumber value="${cartSaving}" maxFractionDigits="0" />đ
+        </dd>
+    </div>
+    <div class="grand-total">
+        <dt>Tổng thanh toán</dt>
+        <dd>
+            <fmt:formatNumber value="${cartTotal}" maxFractionDigits="0" />đ
+        </dd>
+    </div>
+</dl>

@@ -11,8 +11,7 @@ public class User {
     private String role;
     private Timestamp createdAt;
 
-    public User() {
-    }
+    public User() {}
 
     public User(int id, String name, String email, String phone, String password, String role) {
         this.id = id;
@@ -23,7 +22,14 @@ public class User {
         this.role = role;
     }
 
-    public User(int id, String name, String email, String phone, String password, String role, Timestamp createdAt) {
+    public User(
+            int id,
+            String name,
+            String email,
+            String phone,
+            String password,
+            String role,
+            Timestamp createdAt) {
         this.id = id;
         this.name = name;
         this.email = email;

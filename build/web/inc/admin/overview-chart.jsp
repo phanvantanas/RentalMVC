@@ -1,7 +1,70 @@
 <%@page pageEncoding="UTF-8"%>
-<section class="dashboard-panel chart-panel"><div class="dashboard-panel-heading"><div><h2>Tiền Thuê &amp; Lượng Đơn Theo Ngày</h2><p>Tiền đã xác nhận và số đơn được tạo trong kỳ báo cáo.</p></div><div class="chart-legend"><span><i class="blue-dot"></i>Tiền thuê (VND)</span><span><i class="live-dot"></i>Số đơn</span></div></div>
-<div class="chart-scroll" tabindex="0" aria-label="Biểu đồ theo ngày, có thể cuộn ngang"><div class="daily-chart" style="--day-count:${dashboard.days.size()}">
-<c:forEach var="day" items="${dashboard.days}"><div class="chart-day" tabindex="0"><div class="bar-space"><div class="daily-bar" style="height:${day.height}%"></div><span class="order-marker" aria-label="${day.orders} đơn">${day.orders}</span></div><span class="day-label">${day.label}</span><div class="chart-tooltip"><strong>${day.day}</strong><span><fmt:formatNumber value="${day.revenue}" maxFractionDigits="0"/>đ đã xác nhận</span><span>${day.orders} đơn được tạo</span></div></div></c:forEach>
-</div></div>
-<details class="chart-data"><summary>Xem bảng số liệu</summary><div class="overview-table-scroll"><table><caption>Tiền thuê đã xác nhận và đơn theo ngày</caption><thead><tr><th>Ngày</th><th>Tiền thuê (VND)</th><th>Số đơn</th></tr></thead><tbody><c:forEach var="day" items="${dashboard.days}"><tr><td>${day.day}</td><td><fmt:formatNumber value="${day.revenue}" maxFractionDigits="0"/></td><td>${day.orders}</td></tr></c:forEach></tbody></table></div></details>
-<div class="chart-insight"><span>↗</span><p>Chỉ ghi nhận khoản thanh toán đã được quản trị viên đối soát. Số đơn bao gồm các trạng thái, kể cả đơn đã hủy.</p><a href="${ctx}/admin/rentals">Chi tiết đơn thuê →</a></div></section>
+<section class="dashboard-panel chart-panel">
+    <div class="dashboard-panel-heading">
+        <div>
+            <h2>Tiền Thuê &amp; Lượng Đơn Theo Ngày</h2>
+            <p>Tiền đã xác nhận và số đơn được tạo trong kỳ báo cáo.</p>
+        </div>
+        <div class="chart-legend">
+            <span>
+                <i class="blue-dot"></i>Tiền thuê (VND)
+            </span>
+            <span>
+                <i class="live-dot"></i>Số
+                đơn
+            </span>
+        </div>
+    </div>
+    <div class="chart-scroll" tabindex="0" aria-label="Biểu đồ theo ngày, có thể cuộn ngang">
+        <div class="daily-chart" style="--day-count:${dashboard.days.size()}">
+            <c:forEach var="day" items="${dashboard.days}">
+                <div class="chart-day" tabindex="0">
+                    <div class="bar-space">
+                        <div class="daily-bar" style="height:${day.height}%"></div>
+                        <span class="order-marker" aria-label="${day.orders} đơn">${day.orders}</span>
+                    </div>
+                    <span class="day-label">${day.label}</span>
+                    <div class="chart-tooltip">
+                        <strong>${day.day}</strong>
+                        <span>
+                            <fmt:formatNumber value="${day.revenue}" maxFractionDigits="0" />đ đã xác nhận
+                        </span>
+                        <span>${day.orders} đơn được tạo</span>
+                    </div>
+                </div>
+            </c:forEach>
+        </div>
+    </div>
+    <details class="chart-data">
+        <summary>Xem bảng số liệu</summary>
+        <div class="overview-table-scroll">
+            <table>
+                <caption>Tiền thuê đã xác nhận và đơn theo ngày</caption>
+                <thead>
+                    <tr>
+                        <th>Ngày</th>
+                        <th>Tiền thuê (VND)</th>
+                        <th>Số đơn</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach var="day" items="${dashboard.days}">
+                        <tr>
+                            <td>${day.day}</td>
+                            <td>
+                                <fmt:formatNumber value="${day.revenue}" maxFractionDigits="0" />
+                            </td>
+                            <td>${day.orders}</td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </div>
+    </details>
+    <div class="chart-insight">
+        <span>↗</span>
+        <p>Chỉ ghi nhận khoản thanh toán đã được quản trị viên đối soát. Số đơn bao gồm các trạng thái, kể cả đơn đã
+            hủy.</p>
+        <a href="${ctx}/admin/rentals">Chi tiết đơn thuê →</a>
+    </div>
+</section>

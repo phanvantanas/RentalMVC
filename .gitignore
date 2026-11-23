@@ -1,1 +1,3 @@
 /dist/
+/web/WEB-INF/config/chatbot.properties
+/build/web/WEB-INF/config/chatbot.properties

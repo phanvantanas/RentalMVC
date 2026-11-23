@@ -2,6 +2,9 @@ package data.impl;
 
 import data.dao.RentalDao;
 import data.driver.MySQLDriver;
+
+import model.Rental;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -11,7 +14,6 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import model.Rental;
 
 public class RentalImpl implements RentalDao {
     private Connection getConnection() {
@@ -25,13 +27,15 @@ public class RentalImpl implements RentalDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql);
-             ResultSet rs = sttm.executeQuery()) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql);
+                ResultSet rs = sttm.executeQuery()) {
             while (rs.next()) {
                 list.add(mapRental(rs));
             }
         } catch (SQLException ex) {
-            System.getLogger(RentalImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(RentalImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return list;
     }
@@ -43,7 +47,8 @@ public class RentalImpl implements RentalDao {
         Connection con = getConnection();
         if (con == null) return list;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, userId);
             try (ResultSet rs = sttm.executeQuery()) {
                 while (rs.next()) {
@@ -51,7 +56,8 @@ public class RentalImpl implements RentalDao {
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(RentalImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(RentalImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return list;
     }
@@ -62,7 +68,8 @@ public class RentalImpl implements RentalDao {
         Connection con = getConnection();
         if (con == null) return null;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setInt(1, id);
             try (ResultSet rs = sttm.executeQuery()) {
                 if (rs.next()) {
@@ -70,18 +77,23 @@ public class RentalImpl implements RentalDao {
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(RentalImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(RentalImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return null;
     }
 
     @Override
     public int insert(Rental rental) {
-        String sql = "INSERT INTO rentals(user_id, start_date, end_date, status, total, deposit, late_fee) VALUES(?,?,?,?,?,?,?)";
+        String sql =
+                "INSERT INTO rentals(user_id, start_date, end_date, status, total, deposit,"
+                    + " late_fee) VALUES(?,?,?,?,?,?,?)";
         Connection con = getConnection();
         if (con == null) return -1;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (con;
+                PreparedStatement sttm =
+                        con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             sttm.setInt(1, rental.getUserId());
             sttm.setDate(2, rental.getStartDate());
             sttm.setDate(3, rental.getEndDate());
@@ -98,7 +110,8 @@ public class RentalImpl implements RentalDao {
                 }
             }
         } catch (SQLException ex) {
-            System.getLogger(RentalImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(RentalImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return -1;
     }
@@ -109,23 +122,28 @@ public class RentalImpl implements RentalDao {
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setString(1, status);
             sttm.setInt(2, id);
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {
-            System.getLogger(RentalImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(RentalImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return false;
     }
 
     @Override
     public boolean update(Rental rental) {
-        String sql = "UPDATE rentals SET start_date=?, end_date=?, status=?, total=?, deposit=?, late_fee=? WHERE id=?";
+        String sql =
+                "UPDATE rentals SET start_date=?, end_date=?, status=?, total=?, deposit=?,"
+                    + " late_fee=? WHERE id=?";
         Connection con = getConnection();
         if (con == null) return false;
 
-        try (con; PreparedStatement sttm = con.prepareStatement(sql)) {
+        try (con;
+                PreparedStatement sttm = con.prepareStatement(sql)) {
             sttm.setDate(1, rental.getStartDate());
             sttm.setDate(2, rental.getEndDate());
             sttm.setString(3, rental.getStatus());
@@ -135,7 +153,8 @@ public class RentalImpl implements RentalDao {
             sttm.setInt(7, rental.getId());
             return sttm.executeUpdate() > 0;
         } catch (SQLException ex) {
-            System.getLogger(RentalImpl.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(RentalImpl.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return false;
     }
@@ -156,6 +175,7 @@ public class RentalImpl implements RentalDao {
         }
         double lateFee = rs.getDouble("late_fee");
         Timestamp createdAt = rs.getTimestamp("created_at");
-        return new Rental(id, userId, startDate, endDate, status, total, deposit, lateFee, createdAt);
+        return new Rental(
+                id, userId, startDate, endDate, status, total, deposit, lateFee, createdAt);
     }
 }

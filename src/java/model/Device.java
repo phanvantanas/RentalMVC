@@ -4,10 +4,9 @@ public class Device {
     private int id;
     private int productId;
     private String serial;
-    private String status;      // available / maintenance
+    private String status; // available / maintenance
 
-    public Device() {
-    }
+    public Device() {}
 
     public Device(int id, int productId, String serial, String status) {
         this.id = id;

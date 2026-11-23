@@ -1,10 +1,141 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<c:set var="ctx" value="${pageContext.request.contextPath}"/>
-<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quy trình vận hành | LensCam Admin</title><link rel="stylesheet" href="${ctx}/assets/css/admin.css?v=20261118-workflow"><link rel="stylesheet" href="${ctx}/assets/css/admin-workflow.css?v=1"></head><body>
-<%@include file="/inc/icons.jsp"%><%@include file="/inc/admin/sidebar.jsp"%>
-<div class="admin-shell"><header class="admin-topbar"><div>LensCam Admin Console <span class="breadcrumb">/ Quy trình vận hành</span></div><div class="admin-account"><span class="admin-avatar"><svg><use href="#i-camera"/></svg></span><span><c:out value="${sessionScope.user.name}"/><small>QUẢN TRỊ VIÊN</small></span><a href="${ctx}/logout">Đăng xuất ↗</a></div></header>
-<main class="admin-main workflow-main"><div class="page-heading"><div><span class="eyebrow">RENTAL OPERATIONS PLAYBOOK</span><h1>Quy trình vận hành</h1><p>Từ đơn đặt thuê đến bàn giao và nhận lại thiết bị.</p></div><a class="button" href="${ctx}/admin/rentals">Mở quản lý đơn thuê →</a></div>
-<c:choose><c:when test="${not empty loadError}"><p class="notice error" role="alert"><c:out value="${loadError}"/></p></c:when><c:otherwise><section class="operation-queues" aria-label="Công việc cần xử lý"><a href="${ctx}/admin/rentals?status=pending"><span>CHỜ DUYỆT ĐƠN</span><strong>${empty operationCounts.pending ? 0 : operationCounts.pending}</strong><small>Kiểm tra lịch và thiết bị →</small></a><a href="${ctx}/admin/rentals?payment=reported"><span>CHỜ ĐỐI SOÁT</span><strong>${empty operationCounts.review ? 0 : operationCounts.review}</strong><small>Khách đã báo chuyển khoản →</small></a><a href="${ctx}/admin/rentals?status=confirmed"><span>ĐỦ ĐIỀU KIỆN NGÀY &amp; TIỀN</span><strong>${empty operationCounts.handover ? 0 : operationCounts.handover}</strong><small>Mở các đơn chờ bàn giao →</small></a><a href="${ctx}/admin/rentals?status=renting"><span>ĐẾN HẠN / QUÁ HẠN TRẢ</span><strong>${empty operationCounts.returns ? 0 : operationCounts.returns}</strong><small>Mở các đơn đang thuê →</small></a></section></c:otherwise></c:choose>
-<div class="workflow-page-layout"><section class="operation-guide"><div class="operation-guide-heading"><span class="eyebrow">QUY TRÌNH 7 BƯỚC</span><h2>Mỗi đơn thuê, một luồng xử lý rõ ràng</h2><p>Thanh toán và trạng thái thuê được theo dõi riêng. Ảnh biên lai là căn cứ đối soát, chưa phải xác nhận đã nhận tiền.</p></div><%@include file="/inc/admin/operation-steps.jsp"%></section>
-<aside class="operation-reference"><section><h2>Điều kiện bàn giao</h2><ul><li>Đơn đã được duyệt.</li><li>Đã xác nhận nhận tiền đối với đơn có thanh toán VietQR.</li><li>Đã đến ngày nhận và chưa quá ngày trả.</li><li>Thiết bị còn hoạt động, không bảo trì hoặc trùng lịch với đơn khác.</li></ul><a href="${ctx}/admin/rentals?status=confirmed">Kiểm tra đơn chờ giao →</a></section><section><h2>Xử lý tình huống</h2><details><summary>Khách gửi biên lai nhưng chưa thấy tiền?</summary><p>Giữ trạng thái “Chờ đối soát”, kiểm tra tài khoản ngân hàng và nội dung chuyển khoản trước khi xác nhận.</p></details><details><summary>Không bấm bàn giao được?</summary><p>Kiểm tra ngày nhận, trạng thái thanh toán, bảo trì và lịch thuê trùng. Thông báo ở đầu trang quản lý đơn cho biết điều kiện chưa đạt.</p></details><details><summary>Khách trả máy trễ?</summary><p>Liên hệ khách để sắp xếp trả hoặc gia hạn; kiểm tra máy khi nhận lại rồi xác nhận đã nhận máy trên đơn.</p></details><details><summary>Cần hủy đơn đã thanh toán?</summary><p>Đơn đã nhận tiền đang được chặn hủy. Cần xử lý và xác nhận hoàn tiền riêng; hệ thống chưa tự hoàn tiền ngân hàng.</p></details></section><section class="operation-hubs"><h2>Điểm nhận &amp; trả máy</h2><strong>Hub Huế</strong><p>77 Nguyễn Huệ, Huế</p><strong>Hub Đà Nẵng</strong><p>252 Nguyễn Tất Thành, Đà Nẵng</p></section></aside></div><p class="admin-footnote">LENSCAM RENTAL OPERATIONS · Chỉ dành cho quản trị viên</p></main></div></body></html>
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Quy trình vận hành | LensCam Admin</title>
+    <link rel="stylesheet" href="${ctx}/assets/css/admin.css?v=20261119-type600">
+    <link rel="stylesheet" href="${ctx}/assets/css/admin-workflow.css?v=20261119-type600">
+    <link rel="stylesheet" href="${ctx}/assets/css/customer-workflow.css?v=4-important-notes">
+</head>
+
+<body>
+    <%@include file="/inc/icons.jsp"%>
+    <%@include file="/inc/admin/sidebar.jsp"%>
+    <div class="admin-shell">
+        <header class="admin-topbar">
+            <div>LensCam Admin Console <span class="breadcrumb">/ Quy trình vận hành</span>
+            </div>
+            <div class="admin-account">
+                <span class="admin-avatar">
+                    <svg>
+                        <use href="#i-camera" />
+                    </svg>
+                </span>
+                <span>
+                    <c:out value="${sessionScope.user.name}" />
+                    <small>QUẢN TRỊ VIÊN</small>
+                </span>
+                <a href="${ctx}/logout">Đăng xuất ↗</a>
+            </div>
+        </header>
+        <main class="admin-main workflow-main">
+            <div class="page-heading">
+                <div>
+                    <span class="eyebrow">RENTAL OPERATIONS PLAYBOOK</span>
+                    <h1>Quy trình vận hành</h1>
+                    <p>Từ đơn đặt thuê đến bàn giao và nhận lại thiết bị.</p>
+                </div>
+                <a class="button" href="${ctx}/admin/rentals">Mở quản lý đơn thuê →</a>
+            </div>
+            <c:choose>
+                <c:when test="${not empty loadError}">
+                    <p class="notice error" role="alert">
+                        <c:out value="${loadError}" />
+                    </p>
+                </c:when>
+                <c:otherwise>
+                    <section class="operation-queues" aria-label="Công việc cần xử lý">
+                        <a href="${ctx}/admin/rentals?status=pending">
+                            <span>CHỜ DUYỆT
+                                ĐƠN</span>
+                            <strong>${empty operationCounts.pending ? 0 : operationCounts.pending}</strong>
+                            <small>Kiểm tra lịch và thiết bị →</small>
+                        </a>
+                        <a href="${ctx}/admin/rentals?payment=reported">
+                            <span>CHỜ ĐỐI
+                                SOÁT</span>
+                            <strong>${empty operationCounts.review ? 0 : operationCounts.review}</strong>
+                            <small>Khách đã báo chuyển khoản
+                                →</small>
+                        </a>
+                        <a href="${ctx}/admin/rentals?status=confirmed">
+                            <span>ĐỦ ĐIỀU KIỆN
+                                NGÀY &amp; TIỀN</span>
+                            <strong>${empty operationCounts.handover ? 0 : operationCounts.handover}</strong>
+                            <small>Mở các đơn chờ bàn giao
+                                →</small>
+                        </a>
+                        <a href="${ctx}/admin/rentals?status=renting">
+                            <span>ĐẾN HẠN / QUÁ
+                                HẠN TRẢ</span>
+                            <strong>${empty operationCounts.returns ? 0 : operationCounts.returns}</strong>
+                            <small>Mở các đơn đang thuê →</small>
+                        </a>
+                    </section>
+                </c:otherwise>
+            </c:choose>
+            <div class="workflow-page-layout">
+                <section class="operation-guide">
+                    <div class="operation-guide-heading">
+                        <span class="eyebrow">QUY TRÌNH 7 BƯỚC</span>
+                        <h2>Mỗi đơn thuê, một luồng xử lý rõ ràng</h2>
+                        <p>Thanh toán và trạng thái thuê được theo dõi riêng. Ảnh biên lai là căn cứ đối soát, chưa phải
+                            xác nhận đã nhận tiền.</p>
+                    </div>
+                    <%@include file="/inc/admin/operation-steps.jsp"%>
+                </section>
+                <aside class="operation-reference">
+                    <section>
+                        <h2>Điều kiện bàn giao</h2>
+                        <ul>
+                            <li>Đơn đã được duyệt.</li>
+                            <li>Đã xác nhận nhận tiền đối với đơn có thanh toán VietQR.</li>
+                            <li>Đã đến ngày nhận và chưa quá ngày trả.</li>
+                            <li>Thiết bị còn hoạt động, không bảo trì hoặc trùng lịch với đơn khác.</li>
+                        </ul>
+                        <a href="${ctx}/admin/rentals?status=confirmed">Kiểm tra đơn chờ giao →</a>
+                    </section>
+                    <section>
+                        <h2>Xử lý tình huống</h2>
+                        <details>
+                            <summary>Khách gửi biên lai nhưng chưa thấy tiền?</summary>
+                            <p>Giữ trạng thái “Chờ đối soát”, kiểm tra tài khoản ngân hàng và nội dung chuyển khoản
+                                trước khi xác nhận.</p>
+                        </details>
+                        <details>
+                            <summary>Không bấm bàn giao được?</summary>
+                            <p>Kiểm tra ngày nhận, trạng thái thanh toán, bảo trì và lịch thuê trùng. Thông báo ở đầu
+                                trang quản lý đơn cho biết điều kiện chưa đạt.</p>
+                        </details>
+                        <details>
+                            <summary>Khách trả máy trễ?</summary>
+                            <p>Liên hệ khách để sắp xếp trả hoặc gia hạn; kiểm tra máy khi nhận lại rồi xác nhận đã nhận
+                                máy trên đơn.</p>
+                        </details>
+                        <details>
+                            <summary>Cần hủy đơn đã thanh toán?</summary>
+                            <p>Đơn đã nhận tiền đang được chặn hủy. Cần xử lý và xác nhận hoàn tiền riêng; hệ thống chưa
+                                tự hoàn tiền ngân hàng.</p>
+                        </details>
+                    </section>
+                    <section class="operation-hubs">
+                        <h2>Điểm nhận &amp; trả máy</h2>
+                        <strong>Hub Huế</strong>
+                        <p>77 Nguyễn Huệ, Huế</p>
+                        <strong>Hub Đà Nẵng</strong>
+                        <p>252 Nguyễn Tất Thành, Đà Nẵng</p>
+                    </section>
+                </aside>
+            </div>
+            <%@include file="/inc/shop/workflow-content.jsp"%>
+            <p class="admin-footnote">LENSCAM RENTAL OPERATIONS · Chỉ dành cho quản trị viên</p>
+        </main>
+    </div>
+</body>
+
+</html>

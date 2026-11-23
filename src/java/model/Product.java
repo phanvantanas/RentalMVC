@@ -5,16 +5,23 @@ public class Product {
     private int id_category;
     private String name;
     private String image;
-    private double price;       // Giá thuê / ngày
-    private double deposit;     // Tiền đặt cọc
+    private double price; // Giá thuê / ngày
+    private double deposit; // Tiền đặt cọc
     private boolean depositConfigured;
     private String description;
-    private String status;      // active / inactive
+    private String status; // active / inactive
 
-    public Product() {
-    }
+    public Product() {}
 
-    public Product(int id, int id_category, String name, String image, double price, double deposit, String description, String status) {
+    public Product(
+            int id,
+            int id_category,
+            String name,
+            String image,
+            double price,
+            double deposit,
+            String description,
+            String status) {
         this.id = id;
         this.id_category = id_category;
         this.name = name;

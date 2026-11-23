@@ -1,0 +1,230 @@
+.rental-return-dialog {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: calc(100% - 32px);
+    max-width: 630px;
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+    height: fit-content;
+    border: 1px solid #dce6f6;
+    border-radius: 14px;
+    padding: 28px;
+    color: var(--ink);
+    background: white;
+    box-shadow: 0 24px 90px #122d4d30;
+}
+.rental-return-dialog::backdrop {
+    background: #12243b66;
+    backdrop-filter: blur(3px);
+}
+.return-dialog-close {
+    position: absolute;
+    right: 13px;
+    top: 8px;
+    border: 0;
+    background: none;
+    font-size: 27px;
+    color: #8a9bb2;
+}
+.rental-return-dialog h2 {
+    font-size: 23px;
+    margin: 8px 0 12px;
+    letter-spacing: -0.5px;
+}
+.return-order-code {
+    font: 600 12px var(--mono);
+    color: #0050d1;
+    margin-bottom: 20px;
+}
+.return-schedule {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    background: #f2f6ff;
+    border-radius: 7px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+.return-schedule span,
+.return-schedule strong {
+    display: block;
+}
+.return-schedule span {
+    font-size: 11px;
+    color: #8597b1;
+    margin-bottom: 7px;
+}
+.return-schedule strong {
+    font-size: 13px;
+}
+.return-fields {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 16px;
+}
+.rental-return-dialog label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 17px;
+}
+.rental-return-dialog input:not([type='checkbox']):not([type='hidden']),
+.rental-return-dialog textarea {
+    padding: 10px 11px;
+    border: 1px solid #dbe5f7;
+    border-radius: 5px;
+    background: #f8faff;
+    color: var(--ink);
+    width: 100%;
+    min-width: 0;
+    font: 600 12px var(--sans);
+    min-height: 42px;
+}
+.rental-return-dialog input[readonly] {
+    color: #7b8da6;
+    background: #f0f3f8 !important;
+}
+.rental-return-dialog textarea {
+    resize: vertical;
+    line-height: 1.8;
+}
+.return-legacy-note {
+    font-size: 11px;
+    line-height: 1.8;
+    background: #fff7de;
+    color: #9c7417;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 0;
+}
+.return-fee-preview {
+    border-top: 1px solid #e9eff9;
+    border-bottom: 1px solid #e9eff9;
+    padding: 10px 0;
+    margin: 6px 0 19px;
+}
+.return-fee-preview > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 9px 0;
+    font-size: 12px;
+    color: #7e91ac;
+}
+.return-fee-preview strong {
+    color: #194673;
+}
+.return-fee-preview > div:last-child strong {
+    font-size: 19px;
+    color: #0050d1;
+}
+.rental-return-dialog .return-check {
+    flex-direction: row;
+    align-items: center;
+    gap: 9px;
+    font-size: 12px;
+}
+.return-check input {
+    accent-color: #0050d1;
+    width: 15px;
+    height: 15px;
+    margin: 0;
+}
+.return-help {
+    font-size: 11px;
+    color: #8a9bb4;
+    line-height: 1.8;
+    margin: 0 0 17px;
+}
+.return-policy {
+    background: #f7f9ff;
+    border-radius: 6px;
+    padding: 13px;
+    margin-bottom: 22px;
+}
+.return-policy summary {
+    font-size: 11px;
+    color: #4b6e9d;
+    cursor: pointer;
+}
+.return-policy table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 9px;
+    font-size: 11px;
+    color: #7287a6;
+}
+.return-policy td {
+    padding: 7px 0;
+    border-top: 1px solid #e7eefb;
+}
+.return-policy td:last-child {
+    text-align: right;
+}
+.return-policy p {
+    font-size: 10px;
+    color: #8b9db7;
+    line-height: 1.8;
+    margin-bottom: 0;
+}
+.return-form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.return-form-actions .button {
+    font-size: 12px;
+    min-height: 41px;
+}
+.return-form-actions .button:disabled {
+    opacity: 0.5;
+}
+.return-adjustment-text {
+    font-size: 11px;
+    line-height: 1.8;
+    color: #7f91ac;
+    overflow-wrap: anywhere;
+}
+.my-actual-return,
+.my-late-fee-status {
+    font-size: 11px;
+    line-height: 1.8;
+    color: #55789f;
+}
+.my-late-fee-status.paid {
+    color: #00835c;
+}
+.my-late-fee-status.unpaid {
+    color: #bd7d0b;
+}
+body:has(#rental-return-dialog[open]) {
+    overflow: hidden;
+}
+@media (max-width: 600px) {
+    .rental-return-dialog {
+        padding: 25px 20px;
+    }
+    .return-fields {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    .rental-return-dialog h2 {
+        font-size: 21px;
+    }
+    .return-schedule {
+        gap: 12px;
+        padding: 13px;
+    }
+    .return-schedule span {
+        font-size: 10px;
+    }
+    .return-schedule strong {
+        font-size: 12px;
+    }
+    .return-form-actions .button {
+        flex: 1;
+    }
+}

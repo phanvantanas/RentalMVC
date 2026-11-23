@@ -17,21 +17,35 @@
     try {
         const saved = localStorage.getItem(storageKey);
         if (saved && !identifier.value) identifier.value = saved;
-        if (saved && identifier.value === saved) { remember.checked = true; hint.hidden = false; }
-    } catch (_) { /* Login remains available when browser storage is blocked. */ }
+        if (saved && identifier.value === saved) {
+            remember.checked = true;
+            hint.hidden = false;
+        }
+    } catch (_) {
+        /* Login remains available when browser storage is blocked. */
+    }
     remember.addEventListener('change', () => {
         hint.hidden = !remember.checked;
         if (!remember.checked) {
-            try { localStorage.removeItem(storageKey); } catch (_) { /* Optional browser preference. */ }
+            try {
+                localStorage.removeItem(storageKey);
+            } catch (_) {
+                /* Optional browser preference. */
+            }
         }
     });
-    form.addEventListener('submit', event => {
+    form.addEventListener('submit', (event) => {
         identifier.value = identifier.value.trim();
-        if (!form.reportValidity()) { event.preventDefault(); return; }
+        if (!form.reportValidity()) {
+            event.preventDefault();
+            return;
+        }
         try {
             if (remember.checked) localStorage.setItem(storageKey, identifier.value);
             else localStorage.removeItem(storageKey);
-        } catch (_) { /* Storage is optional; never persist the password. */ }
+        } catch (_) {
+            /* Storage is optional; never persist the password. */
+        }
         const submit = form.querySelector('[type="submit"]');
         submit.disabled = true;
         submit.querySelector('span').textContent = 'Đang đăng nhập…';
@@ -41,11 +55,22 @@
         submit.disabled = false;
         submit.querySelector('span').textContent = 'Đăng nhập';
     });
-    document.querySelectorAll('[data-auth-dialog]').forEach(button => button.addEventListener('click', () => {
-        document.getElementById(button.dataset.authDialog).showModal();
-    }));
-    document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click', event => {
-        const rect = dialog.getBoundingClientRect();
-        if (event.target === dialog && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) dialog.close();
-    }));
+    document.querySelectorAll('[data-auth-dialog]').forEach((button) =>
+        button.addEventListener('click', () => {
+            document.getElementById(button.dataset.authDialog).showModal();
+        }),
+    );
+    document.querySelectorAll('dialog').forEach((dialog) =>
+        dialog.addEventListener('click', (event) => {
+            const rect = dialog.getBoundingClientRect();
+            if (
+                event.target === dialog &&
+                (event.clientX < rect.left ||
+                    event.clientX > rect.right ||
+                    event.clientY < rect.top ||
+                    event.clientY > rect.bottom)
+            )
+                dialog.close();
+        }),
+    );
 })();

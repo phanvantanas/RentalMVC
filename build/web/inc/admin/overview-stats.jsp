@@ -1,6 +1,68 @@
 <%@page pageEncoding="UTF-8"%>
 <div class="overview-stats">
-<section class="overview-stat"><div class="overview-stat-top"><span>TIỀN THUÊ ĐÃ XÁC NHẬN</span><span class="stat-icon"><svg><use href="#i-check"/></svg></span></div><strong><fmt:formatNumber value="${dashboard.money.revenue}" maxFractionDigits="0"/><small>đ</small></strong><div class="stat-footer"><span class="green-text">● ${dashboard.money.payments} khoản thanh toán</span></div><p>Tính theo ngày xác nhận nhận tiền, không gồm cọc.</p></section>
-<section class="overview-stat"><div class="overview-stat-top"><span>ĐƠN THUÊ TRONG KỲ</span><span class="stat-icon"><svg><use href="#i-list"/></svg></span></div><strong>${dashboard.orders.total}<small>đơn được tạo</small></strong><div class="stat-footer order-breakdown"><span><i class="red-dot"></i>${dashboard.orders.pending} chờ duyệt</span><span><i class="blue-dot"></i>${dashboard.orders.confirmed} chờ giao</span><span><i class="live-dot"></i>${dashboard.orders.renting} đang thuê</span></div><a href="${ctx}/admin/rentals">Quản lý tất cả đơn thuê ↗</a></section>
-<section class="overview-stat"><div class="overview-stat-top"><span>TỶ LỆ SỬ DỤNG THIẾT BỊ</span><span class="stat-icon"><svg><use href="#i-camera"/></svg></span></div><c:set var="utilization" value="${dashboard.fleet.total gt 0 ? dashboard.fleet.busy * 100.0 / dashboard.fleet.total : 0}"/><strong><fmt:formatNumber value="${utilization}" maxFractionDigits="1"/>%</strong><progress value="${dashboard.fleet.busy}" max="${dashboard.fleet.total gt 0 ? dashboard.fleet.total : 1}" aria-label="Tỷ lệ thiết bị đang thuê"></progress><div class="stat-footer"><span>Đang thuê: <b>${dashboard.fleet.busy}</b> / ${dashboard.fleet.total} thiết bị</span><span>Bảo trì: <b>${dashboard.fleet.maintenance}</b></span></div><p>Thiết bị thuộc các đơn đang thuê tại thời điểm xem.</p></section>
+    <section class="overview-stat">
+        <div class="overview-stat-top">
+            <span>TIỀN THUÊ ĐÃ XÁC NHẬN</span>
+            <span class="stat-icon">
+                <svg>
+                    <use href="#i-check" />
+                </svg>
+            </span>
+        </div>
+        <strong>
+            <fmt:formatNumber value="${dashboard.money.revenue}" maxFractionDigits="0" />
+            <small>đ</small>
+        </strong>
+        <div class="stat-footer">
+            <span class="green-text">● ${dashboard.money.payments} khoản thanh toán</span>
+        </div>
+        <p>Tính theo ngày xác nhận nhận tiền, không gồm cọc.</p>
+    </section>
+    <section class="overview-stat">
+        <div class="overview-stat-top">
+            <span>ĐƠN THUÊ TRONG KỲ</span>
+            <span class="stat-icon">
+                <svg>
+                    <use href="#i-list" />
+                </svg>
+            </span>
+        </div>
+        <strong>${dashboard.orders.total}<small>đơn được tạo</small>
+        </strong>
+        <div class="stat-footer order-breakdown">
+            <span>
+                <i class="red-dot"></i>${dashboard.orders.pending} chờ duyệt
+            </span>
+            <span>
+                <i class="blue-dot"></i>${dashboard.orders.confirmed} chờ giao
+            </span>
+            <span>
+                <i class="live-dot"></i>${dashboard.orders.renting} đang
+                thuê
+            </span>
+        </div>
+        <a href="${ctx}/admin/rentals">Quản lý tất cả đơn thuê ↗</a>
+    </section>
+    <section class="overview-stat">
+        <div class="overview-stat-top">
+            <span>TỶ LỆ SỬ DỤNG THIẾT BỊ</span>
+            <span class="stat-icon">
+                <svg>
+                    <use href="#i-camera" />
+                </svg>
+            </span>
+        </div>
+        <c:set var="utilization" value="${dashboard.fleet.total gt 0 ? dashboard.fleet.busy * 100.0 / dashboard.fleet.total : 0}" />
+        <strong>
+            <fmt:formatNumber value="${utilization}" maxFractionDigits="1" />%
+        </strong>
+        <progress value="${dashboard.fleet.busy}" max="${dashboard.fleet.total gt 0 ? dashboard.fleet.total : 1}" aria-label="Tỷ lệ thiết bị đang thuê"></progress>
+        <div class="stat-footer">
+            <span>Đang thuê: <b>${dashboard.fleet.busy}</b> / ${dashboard.fleet.total} thiết bị</span>
+            <span>Bảo trì:
+                <b>${dashboard.fleet.maintenance}</b>
+            </span>
+        </div>
+        <p>Thiết bị thuộc các đơn đang thuê tại thời điểm xem.</p>
+    </section>
 </div>

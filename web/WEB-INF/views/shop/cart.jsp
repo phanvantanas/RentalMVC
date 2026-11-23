@@ -1,5 +1,152 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%><%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%><%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%><%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%><fmt:setLocale value="vi_VN"/><c:set var="ctx" value="${pageContext.request.contextPath}"/>
-<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Giỏ hàng | LensCam</title><link rel="stylesheet" href="${ctx}/assets/css/catalog.css?v=20261118-weight500"><link rel="stylesheet" href="${ctx}/assets/css/shop.css?v=20261118-footer-bold"></head><body><%@include file="/inc/icons.jsp"%><%@include file="/inc/shop/header.jsp"%><main class="shop-container"><div class="shop-page-heading"><span class="eyebrow">YOUR PRODUCTION KIT</span><h1>Giỏ hàng của bạn</h1><p>Kiểm tra thiết bị và chi phí trước khi thanh toán.</p></div><c:if test="${not empty cartError}"><p class="shop-error" role="alert"><c:out value="${cartError}"/></p></c:if>
-<c:if test="${not empty pendingCheckoutOrder}"><section class="pending-cart-notice" role="status"><strong>Đơn #ORD-${pendingCheckoutOrder} đang chờ hoàn tất thanh toán</strong><p>Thiết bị vẫn được giữ trong giỏ. Giỏ sẽ cập nhật khi bạn tải lại trang sau khi admin xác nhận đã nhận tiền. Thiết bị thêm sau vẫn được giữ lại.</p><a class="button" href="${ctx}/checkout?order=${pendingCheckoutOrder}">Tiếp tục thanh toán →</a></section></c:if>
-<c:choose><c:when test="${empty cartLines}"><section class="shop-empty"><svg><use href="#i-camera"/></svg><h2>Giỏ hàng đang trống</h2><p>Chọn thiết bị để bắt đầu chuẩn bị cho buổi chụp.</p><a class="button" href="${ctx}/home">Khám phá thiết bị <svg><use href="#i-arrow"/></svg></a></section></c:when><c:otherwise><div class="shop-layout"><section class="cart-items"><div class="cart-section-title"><h2>Thiết bị đã chọn <span>${cart.count}</span></h2><form action="${ctx}/cart" method="post"><input type="hidden" name="csrf" value="${sessionScope.shopCsrf}"><button class="text-button" name="action" value="clear">Xóa giỏ hàng</button></form></div>
-<c:forEach items="${cartLines}" var="line"><article class="cart-line"><div class="cart-line-image"><c:choose><c:when test="${not empty line.image}"><img src="<c:out value='${line.image}'/>" alt="<c:out value='${line.name}'/>"></c:when><c:otherwise><svg><use href="#i-camera"/></svg></c:otherwise></c:choose></div><div class="cart-line-info"><span class="eyebrow">THIẾT BỊ CHUYÊN NGHIỆP</span><h3><c:out value="${line.name}"/></h3><p><fmt:formatNumber value="${line.price}" maxFractionDigits="0"/>đ / ngày</p><c:if test="${not line.available}"><span class="stock-warning">Hiện chỉ còn ${line.stock} thiết bị trống cho lịch này.</span></c:if><div class="cart-line-controls"><form action="${ctx}/cart" method="post" class="quantity-form"><input type="hidden" name="csrf" value="${sessionScope.shopCsrf}"><input type="hidden" name="product" value="${line.id}"><label>Số lượng <input type="number" name="quantity" min="1" max="10" value="${line.quantity}" aria-label="Số lượng ${fn:escapeXml(line.name)}" required></label><button name="action" value="update">Cập nhật</button></form><form action="${ctx}/cart" method="post"><input type="hidden" name="csrf" value="${sessionScope.shopCsrf}"><input type="hidden" name="product" value="${line.id}"><button class="text-button" name="action" value="remove">Xóa</button></form></div></div><strong class="cart-line-total"><fmt:formatNumber value="${line.total}" maxFractionDigits="0"/>đ<small>trước ưu đãi</small></strong></article></c:forEach><a class="continue-shopping" href="${ctx}/home?start=${cart.start}&amp;end=${cart.end}&amp;pickup_time=${cart.pickupTime}&amp;return_time=${cart.returnTime}">← Tiếp tục chọn thiết bị</a></section><aside class="shop-summary"><%@include file="/inc/shop/summary.jsp"%><c:choose><c:when test="${not empty pendingCheckoutOrder}"><a class="button full-width" href="${ctx}/checkout?order=${pendingCheckoutOrder}">Xem thanh toán đơn #ORD-${pendingCheckoutOrder}</a><p class="summary-note">Hoàn tất đơn đang chờ trước khi tạo đơn tiếp theo. Thay đổi trong giỏ không thay đổi đơn đã tạo.</p></c:when><c:when test="${canCheckout}"><a class="button full-width" href="${ctx}/checkout">Thanh toán <svg><use href="#i-arrow"/></svg></a></c:when><c:otherwise><p class="shop-error">Vui lòng điều chỉnh lịch hoặc số lượng để đủ thiết bị trống.</p></c:otherwise></c:choose><p class="summary-note">Thanh toán chuyển khoản qua VietQR. Tiền cọc xác nhận riêng khi nhận máy.</p></aside></div></c:otherwise></c:choose></main><footer class="shop-footer">LensCam Rental Hub · Huế &amp; Đà Nẵng</footer></body></html>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<fmt:setLocale value="vi_VN" />
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Giỏ hàng | LensCam</title>
+    <link rel="stylesheet" href="${ctx}/assets/css/catalog.css?v=20261119-rating-right">
+    <link rel="stylesheet" href="${ctx}/assets/css/shop.css?v=20261118-footer-bold">
+</head>
+
+<body>
+    <%@include file="/inc/icons.jsp"%>
+    <%@include file="/inc/shop/header.jsp"%>
+    <main class="shop-container">
+        <div class="shop-page-heading">
+            <span class="eyebrow">YOUR PRODUCTION KIT</span>
+            <h1>Giỏ hàng của bạn</h1>
+            <p>Kiểm tra thiết bị và chi phí trước khi thanh toán.</p>
+        </div>
+        <c:if test="${not empty cartError}">
+            <p class="shop-error" role="alert">
+                <c:out value="${cartError}" />
+            </p>
+        </c:if>
+        <c:if test="${not empty pendingCheckoutOrder}">
+            <section class="pending-cart-notice" role="status">
+                <strong>Đơn #ORD-${pendingCheckoutOrder} đang chờ hoàn tất thanh
+                    toán</strong>
+                <p>Thiết bị vẫn được giữ trong giỏ. Giỏ sẽ cập nhật khi bạn tải lại trang sau khi admin xác nhận đã nhận
+                    tiền. Thiết bị thêm sau vẫn được giữ lại.</p>
+                <a class="button" href="${ctx}/checkout?order=${pendingCheckoutOrder}">Tiếp tục thanh toán →</a>
+            </section>
+        </c:if>
+        <c:choose>
+            <c:when test="${empty cartLines}">
+                <section class="shop-empty">
+                    <svg>
+                        <use href="#i-camera" />
+                    </svg>
+                    <h2>Giỏ hàng đang trống</h2>
+                    <p>Chọn thiết bị để bắt đầu chuẩn bị cho buổi chụp.</p>
+                    <a class="button" href="${ctx}/home">Khám phá thiết bị <svg>
+                            <use href="#i-arrow" />
+                        </svg>
+                    </a>
+                </section>
+            </c:when>
+            <c:otherwise>
+                <div class="shop-layout">
+                    <section class="cart-items">
+                        <div class="cart-section-title">
+                            <h2>Thiết bị đã chọn <span>${cart.count}</span>
+                            </h2>
+                            <form action="${ctx}/cart" method="post">
+                                <input type="hidden" name="csrf" value="${sessionScope.shopCsrf}">
+                                <button class="text-button" name="action" value="clear">Xóa
+                                    giỏ hàng</button>
+                            </form>
+                        </div>
+                        <c:forEach items="${cartLines}" var="line">
+                            <article class="cart-line">
+                                <div class="cart-line-image">
+                                    <c:choose>
+                                        <c:when test="${not empty line.image}">
+                                            <img src="<c:out value='${line.image}'/>"
+                                                alt="<c:out value='${line.name}'/>">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <svg>
+                                                <use href="#i-camera" />
+                                            </svg>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                                <div class="cart-line-info">
+                                    <span class="eyebrow">THIẾT BỊ CHUYÊN NGHIỆP</span>
+                                    <h3>
+                                        <c:out value="${line.name}" />
+                                    </h3>
+                                    <p>
+                                        <fmt:formatNumber value="${line.price}" maxFractionDigits="0" />đ / ngày
+                                    </p>
+                                    <c:if test="${not line.available}">
+                                        <span class="stock-warning">Hiện chỉ còn ${line.stock}
+                                            thiết bị trống cho lịch này.</span>
+                                    </c:if>
+                                    <div class="cart-line-controls">
+                                        <form action="${ctx}/cart" method="post" class="quantity-form">
+                                            <input type="hidden" name="csrf" value="${sessionScope.shopCsrf}">
+                                            <input type="hidden" name="product" value="${line.id}">
+                                            <label>Số lượng
+                                                <input type="number" name="quantity" min="1" max="10"
+                                                    value="${line.quantity}" aria-label="Số lượng ${fn:escapeXml(line.name)}" required>
+                                            </label>
+                                            <button name="action" value="update">Cập nhật</button>
+                                        </form>
+                                        <form action="${ctx}/cart" method="post">
+                                            <input type="hidden" name="csrf" value="${sessionScope.shopCsrf}">
+                                            <input type="hidden" name="product" value="${line.id}">
+                                            <button class="text-button" name="action" value="remove">Xóa</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <strong class="cart-line-total">
+                                    <fmt:formatNumber value="${line.total}" maxFractionDigits="0" />đ<small>trước ưu
+                                        đãi</small>
+                                </strong>
+                            </article>
+                        </c:forEach>
+                        <a class="continue-shopping"
+                            href="${ctx}/home?start=${cart.start}&amp;end=${cart.end}&amp;pickup_time=${cart.pickupTime}&amp;return_time=${cart.returnTime}">
+                            ←
+                            Tiếp tục chọn thiết bị</a>
+                    </section>
+                    <aside class="shop-summary">
+                        <%@include file="/inc/shop/summary.jsp"%>
+                        <c:choose>
+                            <c:when test="${not empty pendingCheckoutOrder}">
+                                <a class="button full-width" href="${ctx}/checkout?order=${pendingCheckoutOrder}">Xem thanh
+                                    toán đơn
+                                    #ORD-${pendingCheckoutOrder}</a>
+                                <p class="summary-note">Hoàn tất đơn đang chờ trước khi tạo đơn tiếp theo. Thay đổi
+                                    trong giỏ không thay đổi đơn đã tạo.</p>
+                            </c:when>
+                            <c:when test="${canCheckout}">
+                                <a class="button full-width" href="${ctx}/checkout">Thanh toán <svg>
+                                        <use href="#i-arrow" />
+                                    </svg>
+                                </a>
+                            </c:when>
+                            <c:otherwise>
+                                <p class="shop-error">Vui lòng điều chỉnh lịch hoặc số lượng để đủ thiết bị trống.</p>
+                            </c:otherwise>
+                        </c:choose>
+                        <p class="summary-note">Thanh toán chuyển khoản qua VietQR. Tiền cọc xác nhận riêng khi nhận
+                            máy.</p>
+                    </aside>
+                </div>
+            </c:otherwise>
+        </c:choose>
+    </main>
+    <footer class="shop-footer">LensCam Rental Hub · Huế &amp; Đà Nẵng</footer>
+</body>
+
+</html>

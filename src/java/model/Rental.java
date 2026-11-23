@@ -4,20 +4,28 @@ import java.sql.Date;
 import java.sql.Timestamp;
 
 public class Rental {
+
     private int id;
     private int userId;
     private Date startDate;
     private Date endDate;
-    private String status;      // pending, confirmed, renting, returned, cancelled
+    private String status; // pending, confirmed, renting, returned, cancelled
     private double total;
     private double deposit;
     private double lateFee;
     private Timestamp createdAt;
 
-    public Rental() {
-    }
+    public Rental() {}
 
-    public Rental(int id, int userId, Date startDate, Date endDate, String status, double total, double deposit, double lateFee) {
+    public Rental(
+            int id,
+            int userId,
+            Date startDate,
+            Date endDate,
+            String status,
+            double total,
+            double deposit,
+            double lateFee) {
         this.id = id;
         this.userId = userId;
         this.startDate = startDate;
@@ -28,7 +36,16 @@ public class Rental {
         this.lateFee = lateFee;
     }
 
-    public Rental(int id, int userId, Date startDate, Date endDate, String status, double total, double deposit, double lateFee, Timestamp createdAt) {
+    public Rental(
+            int id,
+            int userId,
+            Date startDate,
+            Date endDate,
+            String status,
+            double total,
+            double deposit,
+            double lateFee,
+            Timestamp createdAt) {
         this.id = id;
         this.userId = userId;
         this.startDate = startDate;
